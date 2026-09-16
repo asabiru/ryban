@@ -61,7 +61,11 @@ public final class WearablesManager: ObservableObject {
     }
     
     public func handleUrl(_ url: URL) async {
-        _ = wearables.handleUrl(url)
+        do {
+            _ = try await wearables.handleUrl(url)
+        } catch {
+            errorMessage = "Ошибка обработки URL: \(error.localizedDescription)"
+        }
     }
     
     private func observeRegistration() {
