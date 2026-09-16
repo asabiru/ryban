@@ -137,7 +137,7 @@ jobs:
           import subprocess
           text = subprocess.check_output(["xcrun", "simctl", "list", "devices", "available"], text=True)
           for line in text.splitlines():
-              match = re.search(r"\\s+(iPhone[^()]+)\\s+\\(([A-F0-9-]+)\\)\\s+\\((Shutdown|Booted)\\)", line)
+              match = re.search(r"\s+(iPhone[^()]+)\s+\(([A-F0-9-]+)\)\s+\((Shutdown|Booted)\)", line)
               if match:
                   print(match.group(2))
                   break
