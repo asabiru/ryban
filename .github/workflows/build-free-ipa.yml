@@ -90,3 +90,74 @@ jobs:
           name: RayBanMetaAI-Free-ipa
           path: RayBanMetaAI-Free.ipa
           retention-days: 14
+
+  simulator-smoke:
+    name: Launch Free App on iOS Simulator
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode Version
+        run: |
+          XCODE_PATH=""
+          for candidate in /Applications/Xcode_16.4.app /Applications/Xcode_16.3.app /Applications/Xcode_16.2.app /Applications/Xcode_16.1.app /Applications/Xcode_16.0.app; do
+            if [ -d "$candidate" ]; then XCODE_PATH="$candidate"; break; fi
+          done
+          if [ -z "$XCODE_PATH" ]; then echo "Xcode 16 or newer is required"; exit 1; fi
+          sudo xcode-select -s "$XCODE_PATH"
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Free Xcode Project
+        run: xcodegen generate --spec project.free.yml
+
+      - name: Resolve Swift Package Dependencies
+        run: xcodebuild -resolvePackageDependencies -project RayBanMetaAIFree.xcodeproj
+
+      - name: Build Simulator Application
+        run: |
+          xcodebuild clean build \
+            -project RayBanMetaAIFree.xcodeproj \
+            -scheme RayBanMetaAI \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -derivedDataPath build-simulator \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Install and Launch on Simulator
+        run: |
+          DEVICE_UDID=$(xcrun simctl list devices available | python3 -c 'import re, sys; text=sys.stdin.read(); match=re.search(r"iPhone 16[^\\(]*\\(([0-9A-F-]+)\\)", text); print(match.group(1) if match else "")')
+          if [ -z "$DEVICE_UDID" ]; then echo "iPhone 16 simulator was not found"; exit 1; fi
+          xcrun simctl boot "$DEVICE_UDID" || true
+          xcrun simctl bootstatus "$DEVICE_UDID" -b
+          xcrun simctl install "$DEVICE_UDID" build-simulator/Build/Products/Debug-iphonesimulator/RayBanMetaAI.app
+          xcrun simctl launch "$DEVICE_UDID" com.rayban.meta.ai
+          sleep 8
+          xcrun simctl spawn "$DEVICE_UDID" log show --last 30s --style compact > simulator.log || true
+
+      - name: Check Simulator Crash Log
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          text = Path("simulator.log").read_text(errors="replace") if Path("simulator.log").exists() else ""
+          bad = [line for line in text.splitlines() if "Crash" in line or "Fatal" in line or "SIGABRT" in line]
+          if bad:
+              print("\\n".join(bad[-50:]))
+              raise SystemExit(1)
+          print("Simulator launch completed without a detected crash marker.")
+          PY
+
+      - name: Upload Simulator Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: RayBanMetaAI-simulator-log
+          path: simulator.log
+          if-no-files-found: warn
+          retention-days: 7
