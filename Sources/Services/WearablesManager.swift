@@ -54,7 +54,8 @@ public final class WearablesManager: ObservableObject {
         
         let encodedScheme = "raybanmetaai://".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "raybanmetaai://"
         let encodedName = "Ray-Ban AI".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "Ray-BanAI"
-        let datDeepLink = "fb-viewapp://stella/dat/registration?appName=\(encodedName)&action=register&metaAppId=1077803035118164&appLinkUrlScheme=\(encodedScheme)"
+        let bundleId = "com.rayban.meta.ai"
+        let datDeepLink = "fb-viewapp://stella/dat/registration?appPackage=\(bundleId)&appName=\(encodedName)&action=register&metaAppId=1077803035118164&appLinkUrlScheme=\(encodedScheme)"
         
         if let directUrl = URL(string: datDeepLink), UIApplication.shared.canOpenURL(directUrl) {
             UIApplication.shared.open(directUrl, options: [:]) { success in
@@ -119,7 +120,9 @@ public final class WearablesManager: ObservableObject {
             for await devices in Wearables.shared.devicesStream() {
                 guard let self = self else { return }
                 if !devices.isEmpty {
-                    self.statusMessage = "Найдено устройств: \(devices.count)"
+                    self.statusMessage = "Очки обнаружены (\(devices.count))"
+                    self.isConnected = true
+                    await self.connectAndStartStreaming()
                 }
             }
         }
