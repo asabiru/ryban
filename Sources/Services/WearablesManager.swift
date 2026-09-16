@@ -33,18 +33,34 @@ public final class WearablesManager: ObservableObject {
     
     public init() {}
     
-    public func configureSDK() {
-        guard !isConfigured else { return }
+    public func configureSDK(force: Bool = false) {
+        if isConfigured && !force { return }
         do {
             try Wearables.configure()
             isConfigured = true
             statusMessage = "SDK очков готово"
+            errorMessage = nil
             observeRegistration()
             observeDevices()
         } catch {
             isConfigured = false
-            errorMessage = "Ошибка конфигурации SDK: \(error.localizedDescription)"
+            errorMessage = "Ошибка SDK: \(error)"
             statusMessage = "SDK не сконфигурировано"
+        }
+    }
+    
+    public func checkDevicesStatus() {
+        configureSDK()
+        let devices = Wearables.shared.devices
+        if devices.isEmpty {
+            statusMessage = "Очки не найдены в Bluetooth"
+            errorMessage = "Убедитесь, что очки надеты/открыты и подключены в Meta AI"
+        } else {
+            statusMessage = "Найдено очков: \(devices.count)"
+            errorMessage = nil
+            Task {
+                await self.connectAndStartStreaming()
+            }
         }
     }
     

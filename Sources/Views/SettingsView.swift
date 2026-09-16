@@ -157,11 +157,26 @@ public struct SettingsView: View {
                         Text("Статус SDK:")
                         Spacer()
                         Text(appState.wearables.statusMessage)
-                            .foregroundColor(appState.wearables.isConnected ? .green : .secondary)
+                            .foregroundColor(appState.wearables.isConnected ? .green : (appState.wearables.isConfigured ? .blue : .secondary))
                             .font(.subheadline)
                     }
                     
+                    if let error = appState.wearables.errorMessage {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
+                    
                     Toggle("Использовать камеру очков", isOn: $appState.useGlassesCamera)
+                    
+                    Button(action: {
+                        appState.wearables.checkDevicesStatus()
+                    }) {
+                        HStack {
+                            Image(systemName: "arrow.clockwise")
+                            Text("Проверить статус очков")
+                        }
+                    }
                     
                     Button(action: {
                         appState.wearables.startRegistration()
@@ -170,12 +185,6 @@ public struct SettingsView: View {
                             Image(systemName: "link.badge.plus")
                             Text("Подключить к Meta View")
                         }
-                    }
-                    
-                    if let error = appState.wearables.errorMessage {
-                        Text(error)
-                            .font(.caption)
-                            .foregroundColor(.red)
                     }
                 }
                 
