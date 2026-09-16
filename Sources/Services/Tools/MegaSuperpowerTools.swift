@@ -147,7 +147,8 @@ public final class WakeWordEngine: @unchecked Sendable {
 }
 
 // MARK: - 5. Custom AI TTS Engine (OpenAI / ElevenLabs / Apple)
-public final class CustomTTSEngine: @unchecked Sendable {
+@MainActor
+public final class CustomTTSEngine {
     public static let shared = CustomTTSEngine()
     private var audioPlayer: AVAudioPlayer?
     

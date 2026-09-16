@@ -114,7 +114,8 @@ public final class AntiLostSentinelTool: ObservableObject, @unchecked Sendable {
 }
 
 // MARK: - 2. Eye & Posture Health Coach Tool
-public final class EyeAndPostureCoachTool: @unchecked Sendable {
+@MainActor
+public final class EyeAndPostureCoachTool {
     public static let shared = EyeAndPostureCoachTool()
     private init() {}
     
@@ -139,7 +140,8 @@ public final class EyeAndPostureCoachTool: @unchecked Sendable {
 }
 
 // MARK: - 3. Speech & Pacing Coach Tool
-public final class SpeechCoachTool: @unchecked Sendable {
+@MainActor
+public final class SpeechCoachTool {
     public static let shared = SpeechCoachTool()
     private init() {}
     

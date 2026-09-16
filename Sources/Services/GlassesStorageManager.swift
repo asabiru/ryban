@@ -30,6 +30,10 @@ public final class GlassesStorageManager: ObservableObject {
         updateReport()
     }
     
+    private nonisolated(unsafe) var currentTaskPort: mach_port_t {
+        mach_task_self_
+    }
+    
     private func setupMemoryWarningObserver() {
         NotificationCenter.default.addObserver(
             forName: UIApplication.didReceiveMemoryWarningNotification,
@@ -155,7 +159,7 @@ public final class GlassesStorageManager: ObservableObject {
         
         let kerr: kern_return_t = withUnsafeMutablePointer(to: &info) {
             $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
-                task_info(mach_task_self_, task_flavor_t(MACH_TASK_BASIC_INFO), $0, &count)
+                task_info(currentTaskPort, task_flavor_t(MACH_TASK_BASIC_INFO), $0, &count)
             }
         }
         
