@@ -31,9 +31,7 @@ public final class WearablesManager: ObservableObject {
     private var lastFrameTime: TimeInterval = 0
     private let minFrameInterval: TimeInterval = 0.08 // Throttle UI rendering to ~12 FPS to conserve RAM & battery
     
-    public init() {
-        configureSDK()
-    }
+    public init() {}
     
     public func configureSDK() {
         guard !isConfigured else { return }
@@ -51,6 +49,9 @@ public final class WearablesManager: ObservableObject {
     }
     
     public func startRegistration() async {
+        configureSDK()
+        guard isConfigured else { return }
+        
         do {
             statusMessage = "Регистрация в Meta View..."
             try await wearables.startRegistration()

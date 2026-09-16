@@ -5,7 +5,9 @@ import MWDATCore
 struct RayBanMetaAIApp: App {
     
     init() {
+        #if !FREE_BUILD
         WearablesManager.shared.configureSDK()
+        #endif
         // Initialize app-level observers (including Anti-Lost) at launch, not only when a view opens.
         _ = AppState.shared
     }
