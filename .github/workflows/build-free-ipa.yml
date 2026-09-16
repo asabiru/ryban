@@ -34,7 +34,10 @@ jobs:
         run: xcodebuild -resolvePackageDependencies -project RayBanMetaAIFree.xcodeproj
 
       - name: Build Free Application
+        id: build-free
+        continue-on-error: true
         run: |
+          set -o pipefail
           xcodebuild clean build \
             -project RayBanMetaAIFree.xcodeproj \
             -scheme RayBanMetaAI \
@@ -47,7 +50,33 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            AD_HOC_CODE_SIGNING_ALLOWED=YES
+            AD_HOC_CODE_SIGNING_ALLOWED=YES 2>&1 | tee build-free.log
+
+      - name: Publish Swift compiler errors
+        if: always()
+        run: |
+          if [ -f build-free.log ]; then
+            python3 - <<'PY'
+          from pathlib import Path
+          for line in Path("build-free.log").read_text(errors="replace").splitlines():
+              lowered = line.lower()
+              if "error:" in lowered or "fatal error" in lowered:
+                  print(f"::error title=Swift compiler error::{line}")
+          PY
+          fi
+
+      - name: Upload Free Build Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: RayBanMetaAI-Free-build-log
+          path: build-free.log
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Fail if Free Build failed
+        if: steps.build-free.outcome == 'failure'
+        run: exit 1
 
       - name: Create Free IPA Package
         run: |
