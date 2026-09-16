@@ -19,9 +19,7 @@ public struct ContentView: View {
                     // Glasses Status Badge
                     Button(action: {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                        Task {
-                            await appState.wearables.startRegistration()
-                        }
+                        appState.wearables.startRegistration()
                     }) {
                         HStack(spacing: 5) {
                             Image(systemName: "eyeglasses")

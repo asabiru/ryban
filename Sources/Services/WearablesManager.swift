@@ -48,30 +48,47 @@ public final class WearablesManager: ObservableObject {
         }
     }
     
-    public func startRegistration() async {
+    public func startRegistration() {
         configureSDK()
-        guard isConfigured else {
-            errorMessage = "SDK не сконфигурировано"
+        statusMessage = "Открытие Meta View..."
+        
+        let encodedScheme = "raybanmetaai://".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "raybanmetaai://"
+        let encodedName = "Ray-Ban AI".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "Ray-BanAI"
+        let datDeepLink = "fb-viewapp://stella/dat/registration?appName=\(encodedName)&action=register&metaAppId=1077803035118164&appLinkUrlScheme=\(encodedScheme)"
+        
+        if let directUrl = URL(string: datDeepLink), UIApplication.shared.canOpenURL(directUrl) {
+            UIApplication.shared.open(directUrl, options: [:]) { success in
+                if !success {
+                    self.fallbackOpenMetaView()
+                }
+            }
             return
         }
         
-        do {
-            statusMessage = "Регистрация в Meta View..."
-            try await Wearables.shared.startRegistration()
-        } catch let error as RegistrationError {
-            errorMessage = error.description
-            statusMessage = "Ошибка регистрации: \(error.description)"
-        } catch {
-            errorMessage = "Ошибка регистрации: \(error.localizedDescription)"
-            statusMessage = "Ошибка регистрации"
+        if let basicUrl = URL(string: "fb-viewapp://"), UIApplication.shared.canOpenURL(basicUrl) {
+            UIApplication.shared.open(basicUrl)
+            return
+        }
+        
+        fallbackOpenMetaView()
+    }
+    
+    private func fallbackOpenMetaView() {
+        if let metaViewUrl = URL(string: "fb-viewapp://") {
+            UIApplication.shared.open(metaViewUrl)
         }
     }
     
     public func handleUrl(_ url: URL) async {
         do {
-            _ = try await wearables.handleUrl(url)
+            let handled = try await Wearables.shared.handleUrl(url)
+            if handled {
+                self.statusMessage = "Очки успешно авторизованы!"
+                self.isRegistered = true
+                await self.connectAndStartStreaming()
+            }
         } catch {
-            errorMessage = "Ошибка обработки URL: \(error.localizedDescription)"
+            errorMessage = "Ошибка обработки токена Meta: \(error.localizedDescription)"
         }
     }
     
