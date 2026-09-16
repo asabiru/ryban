@@ -244,22 +244,6 @@ public final class WearablesManager: ObservableObject {
             statusMessage = "Ошибка сессии очков"
         }
     }
-                    case .stopped:
-                        self?.isStreaming = false
-                        self?.statusMessage = "Камера остановлена"
-                    default:
-                        break
-                    }
-                }
-            }
-            
-            await cameraStream.start()
-            
-        } catch {
-            errorMessage = "Ошибка подключения: \(error.localizedDescription)"
-            statusMessage = "Ошибка подключения к очкам"
-        }
-    }
     
     public func stopStreaming() {
         AntiLostSentinelTool.shared.markIntentionalDisconnect()
