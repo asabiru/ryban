@@ -104,9 +104,7 @@ public struct SettingsView: View {
                     }
                     
                     Picker("Модель", selection: $appState.selectedModel) {
-                        Text("Gemini 2.0 Flash (Рекомендуется)").tag("gemini-2.0-flash")
-                        Text("Gemini 1.5 Flash").tag("gemini-1.5-flash")
-                        Text("Gemini 1.5 Pro").tag("gemini-1.5-pro")
+                        Text("Gemini 3.6 Flash (Рекомендуется)").tag("gemini-3.6-flash")
                     }
                 }
                 

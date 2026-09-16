@@ -31,7 +31,7 @@ public final class AppState: ObservableObject {
         didSet { KeychainStore.shared.set(openAIApiKey, forKey: "openai_api_key") }
     }
     @AppStorage("openai_voice") public var openAIVoice: String = "onyx"
-    @AppStorage("selected_model") public var selectedModel: String = "gemini-2.0-flash"
+    @AppStorage("selected_model") public var selectedModel: String = "gemini-3.6-flash"
     @AppStorage("agent_name") public var agentName: String = "Джарвис"
     @AppStorage("agent_persona") public var selectedPersonaRaw: String = AgentPersona.jarvis.rawValue
     @AppStorage("system_prompt_custom") public var customSystemPrompt: String = ""
@@ -56,6 +56,7 @@ public final class AppState: ObservableObject {
     
     public init() {
         migrateLegacySecretsToKeychain()
+        migrateRetiredGeminiModel()
         
         // Sync TTS parameters
         tts.speechRate = Float(speechRate)
@@ -104,6 +105,13 @@ public final class AppState: ObservableObject {
         
         defaults.removeObject(forKey: "gemini_api_key")
         defaults.removeObject(forKey: "openai_api_key")
+    }
+    
+    private func migrateRetiredGeminiModel() {
+        let retiredModels = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
+        if retiredModels.contains(selectedModel) {
+            selectedModel = "gemini-3.6-flash"
+        }
     }
     
     public var activeFrame: UIImage? {

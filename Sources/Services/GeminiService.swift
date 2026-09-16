@@ -32,7 +32,7 @@ public final class GeminiService {
         image: UIImage?,
         prompt: String,
         apiKey: String,
-        model: String = "gemini-2.0-flash",
+        model: String = "gemini-3.6-flash",
         systemPrompt: String = "Ты — русскоязычный персональный AI-ассистент в очках Ray-Ban Meta. Отвечай кратко, емко и по делу (1-3 предложения), так как ответ будет озвучен голосом."
     ) async throws -> String {
         let trimmedKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -40,7 +40,9 @@ public final class GeminiService {
             throw GeminiError.missingAPIKey
         }
         
-        let urlString = "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent"
+        let retiredModels = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
+        let effectiveModel = retiredModels.contains(model) ? "gemini-3.6-flash" : model
+        let urlString = "https://generativelanguage.googleapis.com/v1beta/models/\(effectiveModel):generateContent"
         guard let url = URL(string: urlString) else {
             throw GeminiError.invalidURL
         }
