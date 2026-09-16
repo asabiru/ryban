@@ -1,7 +1,7 @@
 import Foundation
 import Security
 
-public final class KeychainStore {
+public final class KeychainStore: @unchecked Sendable {
     public static let shared = KeychainStore()
     
     private let service = "com.rayban.meta.ai.credentials"

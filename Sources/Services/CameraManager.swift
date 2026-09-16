@@ -2,7 +2,7 @@ import AVFoundation
 import CoreImage
 import UIKit
 
-public final class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+public final class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleBufferDelegate, @unchecked Sendable {
     public static let shared = CameraManager()
     
     @Published public var currentFrame: UIImage?

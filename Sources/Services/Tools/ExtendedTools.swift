@@ -115,7 +115,7 @@ public final class ObjectFinderTool: @unchecked Sendable {
 }
 
 // MARK: - SOS Sentinel Tool
-public final class SOSSentinelTool {
+public final class SOSSentinelTool: @unchecked Sendable {
     public static let shared = SOSSentinelTool()
     private init() {}
     

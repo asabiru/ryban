@@ -65,16 +65,18 @@ public final class WorkoutCoachTool: ObservableObject, @unchecked Sendable {
         self.remainingRestSeconds = seconds
         
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            guard let self = self else { return }
-            self.remainingRestSeconds -= 1
-            
-            if self.remainingRestSeconds == 30 {
-                VoiceSynthesisService.shared.speak(text: "Осталось 30 секунд отдыха.")
-            } else if self.remainingRestSeconds == 10 {
-                VoiceSynthesisService.shared.speak(text: "10 секунд. Приготовься.")
-            } else if self.remainingRestSeconds <= 0 {
-                self.stopRestTimer()
-                VoiceSynthesisService.shared.speak(text: "Время отдыха вышло! Начинай следующий подход!")
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                self.remainingRestSeconds -= 1
+                
+                if self.remainingRestSeconds == 30 {
+                    VoiceSynthesisService.shared.speak(text: "Осталось 30 секунд отдыха.")
+                } else if self.remainingRestSeconds == 10 {
+                    VoiceSynthesisService.shared.speak(text: "10 секунд. Приготовься.")
+                } else if self.remainingRestSeconds <= 0 {
+                    self.stopRestTimer()
+                    VoiceSynthesisService.shared.speak(text: "Время отдыха вышло! Начинай следующий подход!")
+                }
             }
         }
         

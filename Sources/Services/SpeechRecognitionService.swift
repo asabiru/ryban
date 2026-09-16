@@ -2,7 +2,7 @@ import AVFoundation
 import Speech
 import Combine
 
-public final class SpeechRecognitionService: ObservableObject {
+public final class SpeechRecognitionService: @unchecked Sendable, ObservableObject {
     public static let shared = SpeechRecognitionService()
     
     private var speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "ru-RU"))

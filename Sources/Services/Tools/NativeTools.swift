@@ -311,7 +311,7 @@ public final class WeatherTool: @unchecked Sendable {
 }
 
 // MARK: - Memory & Fact Engine (Persistent Memory)
-public final class MemoryTool {
+public final class MemoryTool: @unchecked Sendable {
     public static let shared = MemoryTool()
     private let defaultsKey = "agent_persistent_memories"
     

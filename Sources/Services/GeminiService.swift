@@ -23,7 +23,7 @@ public enum GeminiError: LocalizedError {
     }
 }
 
-public final class GeminiService {
+public final class GeminiService: @unchecked Sendable {
     public static let shared = GeminiService()
     
     private init() {}
