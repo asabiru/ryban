@@ -64,6 +64,34 @@ public final class WearablesManager: ObservableObject {
         }
     }
     
+    public func requestCameraPermissionAndConnect() async {
+        configureSDK()
+        statusMessage = "Проверка разрешений очков..."
+        errorMessage = nil
+        do {
+            let status = try await Wearables.shared.checkPermissionStatus(.camera)
+            if status == .granted {
+                self.isRegistered = true
+                self.statusMessage = "Разрешение камеры получено!"
+                await self.connectAndStartStreaming()
+                return
+            }
+            
+            self.statusMessage = "Запрос доступа к камере Meta AI..."
+            let newStatus = try await Wearables.shared.requestPermission(.camera)
+            if newStatus == .granted {
+                self.isRegistered = true
+                self.statusMessage = "Доступ разрешен! Запуск очков..."
+                await self.connectAndStartStreaming()
+            } else {
+                self.statusMessage = "Статус камеры: \(newStatus)"
+            }
+        } catch {
+            errorMessage = "Ошибка разрешений: \(error.localizedDescription)"
+            statusMessage = "Ошибка доступа к камере"
+        }
+    }
+    
     public func startRegistration() {
         configureSDK()
         statusMessage = "Открытие Meta View..."

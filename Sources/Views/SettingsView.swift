@@ -171,6 +171,17 @@ public struct SettingsView: View {
                     
                     Button(action: {
                         Task {
+                            await appState.wearables.requestCameraPermissionAndConnect()
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "video.badge.plus")
+                            Text("Запросить доступ к камере очков")
+                        }
+                    }
+                    
+                    Button(action: {
+                        Task {
                             await appState.wearables.connectAndStartStreaming()
                         }
                     }) {
