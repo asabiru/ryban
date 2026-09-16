@@ -17,17 +17,22 @@ public struct ContentView: View {
                 // Top Status Bar
                 HStack(spacing: 6) {
                     // Glasses Status Badge
-                    HStack(spacing: 5) {
-                        Image(systemName: "eyeglasses")
-                            .foregroundColor(appState.wearables.isConnected ? .green : .secondary)
-                        Text(appState.wearables.isConnected ? "Очки в сети" : "Очки выкл")
-                            .font(.caption2.bold())
-                            .foregroundColor(.secondary)
+                    Button(action: {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        appState.wearables.startRegistration()
+                    }) {
+                        HStack(spacing: 5) {
+                            Image(systemName: "eyeglasses")
+                                .foregroundColor(appState.wearables.isConnected ? .green : .secondary)
+                            Text(appState.wearables.isConnected ? "Очки в сети" : "Очки выкл")
+                                .font(.caption2.bold())
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 6)
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(12)
                     }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 6)
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .cornerRadius(12)
                     
                     // Persona Selector Button
                     Button(action: {
