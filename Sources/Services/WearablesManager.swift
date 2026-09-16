@@ -68,7 +68,7 @@ public final class WearablesManager: ObservableObject {
         configureSDK()
         statusMessage = "Открытие Meta View..."
         
-        let bundleId = "com.rayban.meta.ai"
+        let bundleId = "app.mulberry1261.emerald6299"
         let encodedName = "Ray-Ban AI".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "Ray-BanAI"
         let encodedScheme = "raybanmetaai://".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "raybanmetaai://"
         

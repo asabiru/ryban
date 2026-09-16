@@ -39,7 +39,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: "RayBanMetaAI"
-        PRODUCT_BUNDLE_IDENTIFIER: com.rayban.meta.ai
+        PRODUCT_BUNDLE_IDENTIFIER: app.mulberry1261.emerald6299
         INFOPLIST_FILE: Resources/Info.plist
         GENERATE_INFOPLIST_FILE: "NO"
         APP_DISPLAY_NAME: "Ray-Ban AI Free"
