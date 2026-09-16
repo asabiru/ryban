@@ -144,12 +144,12 @@ public final class WearablesManager: ObservableObject {
     }
     
     public func connectAndStartStreaming() async {
-        guard isConfigured else { return }
-        
+        configureSDK()
         do {
             statusMessage = "Подключение к очкам..."
-            let selector = AutoDeviceSelector(wearables: wearables)
-            let session = try wearables.createSession(deviceSelector: selector)
+            errorMessage = nil
+            let selector = AutoDeviceSelector(wearables: Wearables.shared)
+            let session = try Wearables.shared.createSession(deviceSelector: selector)
             self.deviceSession = session
             
             sessionTask?.cancel()
@@ -160,7 +160,7 @@ public final class WearablesManager: ObservableObject {
             for await state in initialStateStream {
                 if state == .started {
                     isConnected = true
-                    statusMessage = "Очки подключены"
+                    statusMessage = "Очки подключены!"
                     break
                 }
                 if state == .stopped {
@@ -177,7 +177,7 @@ public final class WearablesManager: ObservableObject {
                     switch state {
                     case .started:
                         self.isConnected = true
-                        self.statusMessage = "Очки подключены"
+                        self.statusMessage = "Очки подключены!"
                     case .stopped:
                         self.isConnected = false
                         self.isStreaming = false
@@ -213,6 +213,7 @@ public final class WearablesManager: ObservableObject {
                         guard now - self.lastFrameTime >= self.minFrameInterval else { return }
                         self.lastFrameTime = now
                         self.latestFrame = image
+                        self.isStreaming = true
                     }
                 }
             }
@@ -227,6 +228,22 @@ public final class WearablesManager: ObservableObject {
                     case .paused:
                         self?.isStreaming = false
                         self?.statusMessage = "Поток камеры приостановлен"
+                    case .stopped:
+                        self?.isStreaming = false
+                        self?.statusMessage = "Поток остановлен"
+                    default:
+                        break
+                    }
+                }
+            }
+            
+            cameraStream.start()
+            statusMessage = "Поток очков запущен!"
+        } catch {
+            errorMessage = "Ошибка подключения: \(error.localizedDescription)"
+            statusMessage = "Ошибка сессии очков"
+        }
+    }
                     case .stopped:
                         self?.isStreaming = false
                         self?.statusMessage = "Камера остановлена"

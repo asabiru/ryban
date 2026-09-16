@@ -170,6 +170,17 @@ public struct SettingsView: View {
                     Toggle("Использовать камеру очков", isOn: $appState.useGlassesCamera)
                     
                     Button(action: {
+                        Task {
+                            await appState.wearables.connectAndStartStreaming()
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "video.fill")
+                            Text("Запустить видеопоток с очков")
+                        }
+                    }
+                    
+                    Button(action: {
                         appState.wearables.checkDevicesStatus()
                     }) {
                         HStack {
