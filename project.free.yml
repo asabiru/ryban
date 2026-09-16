@@ -9,7 +9,7 @@ options:
 packages:
   meta-wearables-dat-ios:
     url: https://github.com/facebook/meta-wearables-dat-ios.git
-    branch: main
+    from: "0.9.0"
 
 targets:
   RayBanMetaAI:
