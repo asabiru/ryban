@@ -44,8 +44,8 @@ jobs:
             -configuration Release \
             -sdk iphoneos \
             -derivedDataPath build-free \
-            META_APP_ID="1077803035118164" \
-            META_CLIENT_TOKEN="AR|1077803035118164|9af3681db3d379371e6244bc004370aa" \
+            META_APP_ID="0" \
+            META_CLIENT_TOKEN="developer-mode-placeholder" \
             DEVELOPMENT_TEAM="8PGXC4V227" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \

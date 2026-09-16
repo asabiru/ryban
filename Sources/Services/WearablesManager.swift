@@ -73,9 +73,9 @@ public final class WearablesManager: ObservableObject {
         let encodedScheme = "raybanmetaai://".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "raybanmetaai://"
         
         let deepLinkUrls = [
-            "fb-viewapp://stella/dat/registration?appPackage=\(bundleId)&appName=\(encodedName)&action=register&metaAppId=1077803035118164&appLinkUrlScheme=\(encodedScheme)",
             "fb-viewapp://stella/dat/registration?appPackage=\(bundleId)&appName=\(encodedName)&action=register&metaAppId=0&appLinkUrlScheme=\(encodedScheme)",
-            "fb-viewapp://dat/register?app_id=1077803035118164&app_name=\(encodedName)&app_link_url_scheme=\(encodedScheme)",
+            "fb-viewapp://dat/register?app_id=0&app_name=\(encodedName)&app_link_url_scheme=\(encodedScheme)",
+            "fb-viewapp://stella/dat/registration?appPackage=\(bundleId)&appName=\(encodedName)&action=register&metaAppId=1077803035118164&appLinkUrlScheme=\(encodedScheme)",
             "fb-viewapp://"
         ]
         

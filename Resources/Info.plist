@@ -108,9 +108,9 @@
 		<key>AppLinkURLScheme</key>
 		<string>raybanmetaai://</string>
 		<key>MetaAppID</key>
-		<string>1077803035118164</string>
+		<string>0</string>
 		<key>ClientToken</key>
-		<string>AR|1077803035118164|9af3681db3d379371e6244bc004370aa</string>
+		<string>developer-mode-placeholder</string>
 		<key>TeamID</key>
 		<string>8PGXC4V227</string>
 	</dict>
