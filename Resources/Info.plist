@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Ray-Ban AI</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+
+	<!-- URL Scheme for Meta AI callbacks -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>raybanmetaai</string>
+			</array>
+		</dict>
+	</array>
+
+	<!-- Allow opening external apps (Meta View, Telegram, WhatsApp, Maps) -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>fb-viewapp</string>
+		<string>tg</string>
+		<string>whatsapp</string>
+		<string>maps</string>
+	</array>
+
+	<!-- External accessory protocol for Ray-Ban Meta -->
+	<key>UISupportedExternalAccessoryProtocols</key>
+	<array>
+		<string>com.meta.ar.wearable</string>
+	</array>
+
+	<!-- Background modes for persistent BT connection & audio -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>bluetooth-peripheral</string>
+		<string>external-accessory</string>
+		<string>audio</string>
+		<string>location</string>
+	</array>
+
+	<!-- Privacy permissions -->
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Требуется для подключения к умным очкам Ray-Ban Meta.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Требуется для передачи видео и аудио с очков Ray-Ban Meta.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Требуется для распознавания вашего голоса и голосовых команд.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Требуется для перевода русской речи в текст запроса к AI.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Требуется для анализа изображения через камеру смартфона или очков.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Требуется для чтения и добавления встреч в Календарь по голосовой команде.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Требуется для чтения и добавления событий в Календарь.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>Требуется для создания и просмотра ваших заметок и напоминаний.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>Требуется для управления напоминаниями по голосовой команде.</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Требуется для голосового переключения треков и управления плеером.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Требуется для определения погоды и поиска мест поблизости.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Требуется для гео-контекста и подсказок в очках.</string>
+	<key>NSHomeKitUsageDescription</key>
+	<string>Требуется для голосового управления умным домом HomeKit через очки.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Требуется для голосового запроса шагов, активности и калорий за день.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Требуется для чтения данных активности.</string>
+
+	<!-- Meta Wearables DAT Configuration -->
+	<key>MWDAT</key>
+	<dict>
+		<key>AppLinkURLScheme</key>
+		<string>raybanmetaai://</string>
+		<key>MetaAppID</key>
+		<string>$(META_APP_ID)</string>
+		<key>ClientToken</key>
+		<string>$(META_CLIENT_TOKEN)</string>
+		<key>TeamID</key>
+		<string>$(DEVELOPMENT_TEAM)</string>
+		<key>DAMEnabled</key>
+		<true/>
+	</dict>
+
+	<key>UILaunchScreen</key>
+	<dict/>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+</dict>
+</plist>

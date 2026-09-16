@@ -1,0 +1,65 @@
+name: Build Full iOS IPA
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Unsigned IPA for Sideloadly
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode Version
+        run: |
+          sudo xcode-select -s /Applications/Xcode_15.4.app || sudo xcode-select -s /Applications/Xcode_16.0.app || true
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        run: |
+          brew install xcodegen
+
+      - name: Generate Xcode Project
+        run: |
+          xcodegen generate
+
+      - name: Resolve Swift Package Dependencies
+        run: |
+          xcodebuild -resolvePackageDependencies -project RayBanMetaAI.xcodeproj
+
+      - name: Build Application (.app)
+        env:
+          META_APP_ID: ${{ secrets.META_APP_ID }}
+          META_CLIENT_TOKEN: ${{ secrets.META_CLIENT_TOKEN }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          xcodebuild clean build \
+            -project RayBanMetaAI.xcodeproj \
+            -scheme RayBanMetaAI \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            META_APP_ID="${META_APP_ID:-0}" \
+            META_CLIENT_TOKEN="${META_CLIENT_TOKEN:-0}" \
+            DEVELOPMENT_TEAM="${APPLE_TEAM_ID:-}" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
+
+      - name: Create IPA Package
+        run: |
+          mkdir -p Payload
+          cp -r build/Build/Products/Release-iphoneos/RayBanMetaAI.app Payload/
+          zip -r RayBanMetaAI.ipa Payload
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: RayBanMetaAI-ipa
+          path: RayBanMetaAI.ipa
+          retention-days: 14

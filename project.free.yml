@@ -1,0 +1,55 @@
+name: RayBanMetaAIFree
+options:
+  bundleIdPrefix: com.rayban
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15.0"
+  generateEmptyDirectories: true
+
+packages:
+  meta-wearables-dat-ios:
+    url: https://github.com/facebook/meta-wearables-dat-ios.git
+    from: "0.8.0"
+
+targets:
+  RayBanMetaAI:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: Sources
+    resources:
+      - path: Resources/Assets.xcassets
+    dependencies:
+      - package: meta-wearables-dat-ios
+        product: MWDATCore
+      - package: meta-wearables-dat-ios
+        product: MWDATCamera
+      - sdk: EventKit.framework
+      - sdk: MediaPlayer.framework
+      - sdk: CoreLocation.framework
+      - sdk: UserNotifications.framework
+      - sdk: Security.framework
+      - sdk: Speech.framework
+      - sdk: AVFoundation.framework
+      - sdk: ShazamKit.framework
+      - sdk: HomeKit.framework
+      - sdk: HealthKit.framework
+    info:
+      path: Resources/Info.plist
+    settings:
+      base:
+        PRODUCT_NAME: "RayBanMetaAI"
+        PRODUCT_BUNDLE_IDENTIFIER: com.rayban.meta.ai
+        TARGETED_DEVICE_FAMILY: "1"
+        SWIFT_VERSION: "5.9"
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "FREE_BUILD"
+        DEVELOPMENT_TEAM: ""
+        META_APP_ID: "0"
+        META_CLIENT_TOKEN: "0"
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGNING_REQUIRED: "NO"
+        CODE_SIGNING_ALLOWED: "NO"
+        CODE_SIGN_IDENTITY: ""
+        ENABLE_BITCODE: "NO"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

@@ -1,0 +1,13 @@
+# Xcode
+.DS_Store
+build/
+DerivedData/
+*.xcuserstate
+*.xcuserdatad
+*.xcscmblueprint
+xcuserdata/
+*.ipa
+Payload/
+RayBanMetaAI.xcodeproj/
+RayBanMetaAIFree.xcodeproj/
+.build/
