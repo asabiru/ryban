@@ -80,9 +80,9 @@ jobs:
 
       - name: Create Free IPA Package
         run: |
-          mkdir -p Payload-Free
-          cp -r build-free/Build/Products/Release-iphoneos/RayBanMetaAI.app Payload-Free/
-          zip -r RayBanMetaAI-Free.ipa Payload-Free
+          mkdir -p Payload
+          cp -r build-free/Build/Products/Release-iphoneos/RayBanMetaAI.app Payload/
+          zip -r RayBanMetaAI-Free.ipa Payload
 
       - name: Upload Free IPA Artifact
         uses: actions/upload-artifact@v4
