@@ -55,5 +55,6 @@ targets:
         CODE_SIGNING_REQUIRED: "NO"
         CODE_SIGNING_ALLOWED: "NO"
         CODE_SIGN_IDENTITY: ""
+        CODE_SIGN_ENTITLEMENTS: Resources/RayBanMetaAI.entitlements
         ENABLE_BITCODE: "NO"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
