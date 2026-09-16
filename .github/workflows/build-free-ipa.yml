@@ -46,7 +46,7 @@ jobs:
             -derivedDataPath build-free \
             META_APP_ID="1077803035118164" \
             META_CLIENT_TOKEN="AR|1077803035118164|9af3681db3d379371e6244bc004370aa" \
-            DEVELOPMENT_TEAM="" \
+            DEVELOPMENT_TEAM="8PGXC4V227" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
