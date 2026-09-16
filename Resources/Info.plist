@@ -56,6 +56,7 @@
 	<!-- Background modes for persistent BT connection & audio -->
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>bluetooth-central</string>
 		<string>bluetooth-peripheral</string>
 		<string>external-accessory</string>
 		<string>audio</string>
@@ -67,6 +68,12 @@
 	<string>Требуется для подключения к умным очкам Ray-Ban Meta.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Требуется для передачи видео и аудио с очков Ray-Ban Meta.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Требуется для передачи видеопотока с очков Ray-Ban Meta по Wi-Fi.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_bonjour._tcp</string>
+	</array>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Требуется для распознавания вашего голоса и голосовых команд.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
@@ -98,7 +105,7 @@
 	<key>MWDAT</key>
 	<dict>
 		<key>AppLinkURLScheme</key>
-		<string>https://asabiru.github.io/ryban</string>
+		<string>raybanmetaai://</string>
 		<key>MetaAppID</key>
 		<string>1077803035118164</string>
 		<key>ClientToken</key>
