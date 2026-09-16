@@ -7,7 +7,7 @@ import Combine
 
 // MARK: - 1. Anti-Lost & Distance Sentinel Tool
 @MainActor
-public final class AntiLostSentinelTool: ObservableObject {
+public final class AntiLostSentinelTool: ObservableObject, @unchecked Sendable {
     public static let shared = AntiLostSentinelTool()
     
     @Published public var lastKnownLocationName: String = "Не зафиксировано"
@@ -114,7 +114,7 @@ public final class AntiLostSentinelTool: ObservableObject {
 }
 
 // MARK: - 2. Eye & Posture Health Coach Tool
-public final class EyeAndPostureCoachTool {
+public final class EyeAndPostureCoachTool: @unchecked Sendable {
     public static let shared = EyeAndPostureCoachTool()
     private init() {}
     
@@ -139,7 +139,7 @@ public final class EyeAndPostureCoachTool {
 }
 
 // MARK: - 3. Speech & Pacing Coach Tool
-public final class SpeechCoachTool {
+public final class SpeechCoachTool: @unchecked Sendable {
     public static let shared = SpeechCoachTool()
     private init() {}
     
@@ -173,7 +173,7 @@ public final class SpeechCoachTool {
 }
 
 // MARK: - 4. Bill Split Calculator Tool
-public final class BillCalculatorTool {
+public final class BillCalculatorTool: @unchecked Sendable {
     public static let shared = BillCalculatorTool()
     private init() {}
     
@@ -192,7 +192,7 @@ public final class BillCalculatorTool {
 
 // MARK: - 5. Photo Director Tool
 @MainActor
-public final class PhotoDirectorTool {
+public final class PhotoDirectorTool: @unchecked Sendable {
     public static let shared = PhotoDirectorTool()
     private init() {}
     
@@ -217,7 +217,7 @@ public final class PhotoDirectorTool {
 }
 
 // MARK: - 5. Offline Fallback Command Engine
-public final class OfflineCommandEngine {
+public final class OfflineCommandEngine: @unchecked Sendable {
     public static let shared = OfflineCommandEngine()
     private init() {}
     
@@ -262,7 +262,7 @@ public final class OfflineCommandEngine {
 
 // MARK: - 6. Interactive City Trivia Tool
 @MainActor
-public final class CityTriviaTool {
+public final class CityTriviaTool: @unchecked Sendable {
     public static let shared = CityTriviaTool()
     private init() {}
     

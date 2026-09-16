@@ -1,6 +1,6 @@
 import Foundation
 
-public final class AgentToolManager {
+public final class AgentToolManager: @unchecked Sendable {
     public static let shared = AgentToolManager()
     
     private init() {}

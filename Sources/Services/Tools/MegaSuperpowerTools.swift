@@ -5,7 +5,7 @@ import AudioToolbox
 import Combine
 
 // MARK: - 1. Find My Phone Tool
-public final class FindMyPhoneTool {
+public final class FindMyPhoneTool: @unchecked Sendable {
     public static let shared = FindMyPhoneTool()
     private var isAlarmPlaying = false
     private var audioPlayer: AVAudioPlayer?
@@ -49,7 +49,7 @@ public final class FindMyPhoneTool {
 
 // MARK: - 2. Workout & Rest Coach Tool
 @MainActor
-public final class WorkoutCoachTool: ObservableObject {
+public final class WorkoutCoachTool: ObservableObject, @unchecked Sendable {
     public static let shared = WorkoutCoachTool()
     
     @Published public var isResting: Bool = false
@@ -90,7 +90,7 @@ public final class WorkoutCoachTool: ObservableObject {
 }
 
 // MARK: - 3. Driver & Co-Pilot Tool
-public final class DriverCopilotTool {
+public final class DriverCopilotTool: @unchecked Sendable {
     public static let shared = DriverCopilotTool()
     private init() {}
     
@@ -106,7 +106,7 @@ public final class DriverCopilotTool {
 }
 
 // MARK: - 4. Wake-Word Detection Engine
-public final class WakeWordEngine {
+public final class WakeWordEngine: @unchecked Sendable {
     public static let shared = WakeWordEngine()
     
     public let defaultWakeWords = [
@@ -145,7 +145,7 @@ public final class WakeWordEngine {
 }
 
 // MARK: - 5. Custom AI TTS Engine (OpenAI / ElevenLabs / Apple)
-public final class CustomTTSEngine {
+public final class CustomTTSEngine: @unchecked Sendable {
     public static let shared = CustomTTSEngine()
     private var audioPlayer: AVAudioPlayer?
     

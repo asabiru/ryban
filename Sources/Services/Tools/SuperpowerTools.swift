@@ -5,7 +5,7 @@ import HealthKit
 import Combine
 
 // MARK: - HomeKit Smart Home Tool
-public final class HomeKitTool: NSObject, ObservableObject, HMHomeManagerDelegate {
+public final class HomeKitTool: NSObject, ObservableObject, HMHomeManagerDelegate, @unchecked Sendable {
     public static let shared = HomeKitTool()
     private var homeManager: HMHomeManager?
     @Published public var homesLoaded: Bool = false
@@ -72,7 +72,7 @@ public final class HomeKitTool: NSObject, ObservableObject, HMHomeManagerDelegat
 }
 
 // MARK: - HealthKit Fitness & Steps Tool
-public final class HealthKitTool {
+public final class HealthKitTool: @unchecked Sendable {
     public static let shared = HealthKitTool()
     private let healthStore = HKHealthStore()
     
@@ -142,7 +142,7 @@ public final class HealthKitTool {
 }
 
 // MARK: - Voice Notes & Idea Catcher Tool
-public final class VoiceNotesTool {
+public final class VoiceNotesTool: @unchecked Sendable {
     public static let shared = VoiceNotesTool()
     private let defaultsKey = "agent_voice_notes_list"
     
@@ -209,7 +209,7 @@ public final class VoiceNotesTool {
 }
 
 // MARK: - People & Faces Memory Tool
-public final class PeopleMemoryTool {
+public final class PeopleMemoryTool: @unchecked Sendable {
     public static let shared = PeopleMemoryTool()
     private let defaultsKey = "agent_people_memory"
     
@@ -282,7 +282,7 @@ public final class PeopleMemoryTool {
 }
 
 // MARK: - News & Web Intelligence Tool
-public final class NewsAndWebTool {
+public final class NewsAndWebTool: @unchecked Sendable {
     public static let shared = NewsAndWebTool()
     private init() {}
     
