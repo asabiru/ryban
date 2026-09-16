@@ -132,8 +132,18 @@ jobs:
 
       - name: Install and Launch on Simulator
         run: |
-          DEVICE_UDID=$(xcrun simctl list devices available | python3 -c 'import re, sys; text=sys.stdin.read(); match=re.search(r"iPhone 16[^\\(]*\\(([0-9A-F-]+)\\)", text); print(match.group(1) if match else "")')
-          if [ -z "$DEVICE_UDID" ]; then echo "iPhone 16 simulator was not found"; exit 1; fi
+          DEVICE_UDID=$(python3 - <<'PY'
+          import re
+          import subprocess
+          text = subprocess.check_output(["xcrun", "simctl", "list", "devices", "available"], text=True)
+          for line in text.splitlines():
+              match = re.search(r"\\s+(iPhone[^()]+)\\s+\\(([A-F0-9-]+)\\)\\s+\\((Shutdown|Booted)\\)", line)
+              if match:
+                  print(match.group(2))
+                  break
+          PY
+          )
+          if [ -z "$DEVICE_UDID" ]; then echo "No available iPhone simulator was found"; exit 1; fi
           xcrun simctl boot "$DEVICE_UDID" || true
           xcrun simctl bootstatus "$DEVICE_UDID" -b
           xcrun simctl install "$DEVICE_UDID" build-simulator/Build/Products/Debug-iphonesimulator/RayBanMetaAI.app
