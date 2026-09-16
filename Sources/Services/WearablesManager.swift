@@ -48,7 +48,7 @@ public final class WearablesManager: ObservableObject {
         }
     }
     
-    public func startRegistration() {
+    public func startRegistration() async {
         configureSDK()
         guard isConfigured else {
             errorMessage = "SDK не сконфигурировано"
@@ -57,7 +57,7 @@ public final class WearablesManager: ObservableObject {
         
         do {
             statusMessage = "Регистрация в Meta View..."
-            try Wearables.shared.startRegistration()
+            try await Wearables.shared.startRegistration()
         } catch {
             errorMessage = "Ошибка регистрации: \(error.localizedDescription)"
             statusMessage = "Ошибка регистрации"

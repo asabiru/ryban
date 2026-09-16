@@ -164,7 +164,9 @@ public struct SettingsView: View {
                     Toggle("Использовать камеру очков", isOn: $appState.useGlassesCamera)
                     
                     Button(action: {
-                        appState.wearables.startRegistration()
+                        Task {
+                            await appState.wearables.startRegistration()
+                        }
                     }) {
                         HStack {
                             Image(systemName: "link.badge.plus")
