@@ -47,6 +47,7 @@ targets:
         CURRENT_PROJECT_VERSION: "1"
         TARGETED_DEVICE_FAMILY: "1"
         SWIFT_VERSION: "6.0"
+        SWIFT_STRICT_CONCURRENCY: minimal
         DEVELOPMENT_TEAM: "8PGXC4V227"
         CODE_SIGN_ENTITLEMENTS: Resources/RayBanMetaAI.entitlements
         META_APP_ID: "1077803035118164"
