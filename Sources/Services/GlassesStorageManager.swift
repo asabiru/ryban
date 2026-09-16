@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import Combine
 import MachO
 
 public struct StorageReport {

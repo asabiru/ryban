@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import AVFoundation
+import Combine
 import ShazamKit
 
 // MARK: - Meeting & Lecture Transcriber & Summarizer

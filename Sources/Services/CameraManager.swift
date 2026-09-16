@@ -1,4 +1,5 @@
 import AVFoundation
+import CoreImage
 import UIKit
 
 public final class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleBufferDelegate {
