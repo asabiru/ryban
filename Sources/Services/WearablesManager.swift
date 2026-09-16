@@ -49,13 +49,11 @@ public final class WearablesManager: ObservableObject {
     }
     
     public func startRegistration() async {
-        #if FREE_BUILD
-        errorMessage = "Meta View недоступен в бесплатной сборке без Meta App ID и Client Token"
-        statusMessage = "Сначала настройте Meta Developer credentials"
-        return
-        #else
         configureSDK()
-        guard isConfigured else { return }
+        guard isConfigured else {
+            errorMessage = "SDK не сконфигурировано"
+            return
+        }
         
         do {
             statusMessage = "Регистрация в Meta View..."
@@ -64,19 +62,14 @@ public final class WearablesManager: ObservableObject {
             errorMessage = "Ошибка регистрации: \(error.localizedDescription)"
             statusMessage = "Ошибка регистрации"
         }
-        #endif
     }
     
     public func handleUrl(_ url: URL) async {
-        #if FREE_BUILD
-        return
-        #else
         do {
             _ = try await wearables.handleUrl(url)
         } catch {
             errorMessage = "Ошибка обработки URL: \(error.localizedDescription)"
         }
-        #endif
     }
     
     private func observeRegistration() {
