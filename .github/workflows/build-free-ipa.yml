@@ -147,19 +147,23 @@ jobs:
           xcrun simctl boot "$DEVICE_UDID" || true
           xcrun simctl bootstatus "$DEVICE_UDID" -b
           xcrun simctl install "$DEVICE_UDID" build-simulator/Build/Products/Debug-iphonesimulator/RayBanMetaAI.app
-          xcrun simctl launch "$DEVICE_UDID" com.rayban.meta.ai
-          sleep 8
-          xcrun simctl spawn "$DEVICE_UDID" log show --last 30s --style compact > simulator.log || true
+          set +e
+          xcrun simctl launch --console "$DEVICE_UDID" com.rayban.meta.ai > simulator-console.log 2>&1 &
+          LAUNCH_PID=$!
+          sleep 10
+          if kill -0 "$LAUNCH_PID" 2>/dev/null; then kill "$LAUNCH_PID" 2>/dev/null; fi
+          wait "$LAUNCH_PID" 2>/dev/null
+          xcrun simctl spawn "$DEVICE_UDID" log show --last 30s --style compact > simulator.log 2>&1 || true
+          set -e
 
       - name: Check Simulator Crash Log
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          text = Path("simulator.log").read_text(errors="replace") if Path("simulator.log").exists() else ""
-          app_lines = [line for line in text.splitlines() if "RayBanMetaAI" in line or "com.rayban.meta.ai" in line]
-          bad = [line for line in app_lines if "Crash" in line or "Fatal" in line or "SIGABRT" in line or "Terminated" in line]
+          console = Path("simulator-console.log").read_text(errors="replace") if Path("simulator-console.log").exists() else ""
+          bad = [line for line in console.splitlines() if "Fatal" in line or "SIGABRT" in line or "EXC_" in line or "Terminated" in line or "Swift runtime failure" in line]
           if bad:
-              print("\\n".join(bad[-50:]))
+              print("\\n".join(bad[-100:]))
               raise SystemExit(1)
           print("Simulator launch completed without an app-specific crash marker.")
           PY
@@ -169,6 +173,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: RayBanMetaAI-simulator-log
-          path: simulator.log
+          path: |
+            simulator.log
+            simulator-console.log
           if-no-files-found: warn
           retention-days: 7
