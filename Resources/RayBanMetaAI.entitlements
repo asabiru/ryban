@@ -6,6 +6,10 @@
 	<array>
 		<string>HomeKit</string>
 	</array>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:asabiru.github.io</string>
+	</array>
 	<key>com.apple.developer.healthkit</key>
 	<true/>
 </dict>

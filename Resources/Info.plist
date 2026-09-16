@@ -105,7 +105,7 @@
 	<key>MWDAT</key>
 	<dict>
 		<key>AppLinkURLScheme</key>
-		<string>raybanmetaai://</string>
+		<string>https://asabiru.github.io/ryban</string>
 		<key>MetaAppID</key>
 		<string>1077803035118164</string>
 		<key>ClientToken</key>
