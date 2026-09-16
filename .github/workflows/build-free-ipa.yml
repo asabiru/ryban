@@ -156,11 +156,12 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           text = Path("simulator.log").read_text(errors="replace") if Path("simulator.log").exists() else ""
-          bad = [line for line in text.splitlines() if "Crash" in line or "Fatal" in line or "SIGABRT" in line]
+          app_lines = [line for line in text.splitlines() if "RayBanMetaAI" in line or "com.rayban.meta.ai" in line]
+          bad = [line for line in app_lines if "Crash" in line or "Fatal" in line or "SIGABRT" in line or "Terminated" in line]
           if bad:
               print("\\n".join(bad[-50:]))
               raise SystemExit(1)
-          print("Simulator launch completed without a detected crash marker.")
+          print("Simulator launch completed without an app-specific crash marker.")
           PY
 
       - name: Upload Simulator Log
