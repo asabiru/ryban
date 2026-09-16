@@ -58,6 +58,9 @@ public final class WearablesManager: ObservableObject {
         do {
             statusMessage = "Регистрация в Meta View..."
             try await Wearables.shared.startRegistration()
+        } catch let error as RegistrationError {
+            errorMessage = error.description
+            statusMessage = "Ошибка регистрации: \(error.description)"
         } catch {
             errorMessage = "Ошибка регистрации: \(error.localizedDescription)"
             statusMessage = "Ошибка регистрации"

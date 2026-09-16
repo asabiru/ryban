@@ -56,6 +56,7 @@
 	<!-- Background modes for persistent BT connection & audio -->
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>processing</string>
 		<string>bluetooth-central</string>
 		<string>bluetooth-peripheral</string>
 		<string>external-accessory</string>
@@ -105,15 +106,13 @@
 	<key>MWDAT</key>
 	<dict>
 		<key>AppLinkURLScheme</key>
-		<string>https://asabiru.github.io/ryban</string>
+		<string>raybanmetaai://</string>
 		<key>MetaAppID</key>
 		<string>1077803035118164</string>
 		<key>ClientToken</key>
 		<string>AR|1077803035118164|9af3681db3d379371e6244bc004370aa</string>
 		<key>TeamID</key>
 		<string>8PGXC4V227</string>
-		<key>DAMEnabled</key>
-		<true/>
 	</dict>
 
 	<key>UILaunchScreen</key>
