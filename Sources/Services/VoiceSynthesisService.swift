@@ -1,7 +1,7 @@
 import AVFoundation
 import Combine
 
-public final class VoiceSynthesisService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
+public final class VoiceSynthesisService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate, @unchecked Sendable {
     public static let shared = VoiceSynthesisService()
     
     private let synthesizer = AVSpeechSynthesizer()
