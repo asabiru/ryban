@@ -83,6 +83,7 @@ public final class MeetingTranscriberTool: ObservableObject {
 }
 
 // MARK: - Whisper / Stealth Mode Tool
+@MainActor
 public final class WhisperModeTool {
     public static let shared = WhisperModeTool()
     private init() {}

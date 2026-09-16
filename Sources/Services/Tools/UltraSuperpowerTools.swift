@@ -191,6 +191,7 @@ public final class BillCalculatorTool {
 }
 
 // MARK: - 5. Photo Director Tool
+@MainActor
 public final class PhotoDirectorTool {
     public static let shared = PhotoDirectorTool()
     private init() {}
@@ -260,6 +261,7 @@ public final class OfflineCommandEngine {
 }
 
 // MARK: - 6. Interactive City Trivia Tool
+@MainActor
 public final class CityTriviaTool {
     public static let shared = CityTriviaTool()
     private init() {}

@@ -17,10 +17,10 @@ public final class WearablesManager: ObservableObject {
     @Published public var lastCapturedPhoto: UIImage?
     @Published public var errorMessage: String?
     
-    private var wearables: Wearables { Wearables.shared }
+    private var wearables: WearablesInterface { Wearables.shared }
     private var deviceSession: DeviceSession?
     private var camera: Camera?
-    private var stream: Stream?
+    private var stream: MWDATCamera.Stream?
     
     private var registrationTask: Task<Void, Never>?
     private var devicesTask: Task<Void, Never>?
@@ -51,21 +51,12 @@ public final class WearablesManager: ObservableObject {
     }
     
     public func startRegistration() async {
-        do {
-            statusMessage = "Регистрация в Meta View..."
-            try await wearables.startRegistration()
-        } catch {
-            errorMessage = "Ошибка регистрации: \(error.localizedDescription)"
-            statusMessage = "Ошибка регистрации"
-        }
+        statusMessage = "Регистрация в Meta View..."
+        wearables.startRegistration()
     }
     
     public func handleUrl(_ url: URL) async {
-        do {
-            _ = try await wearables.handleUrl(url)
-        } catch {
-            errorMessage = "Ошибка обработки URL: \(error.localizedDescription)"
-        }
+        _ = wearables.handleUrl(url)
     }
     
     private func observeRegistration() {

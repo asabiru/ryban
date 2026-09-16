@@ -18,7 +18,7 @@ public struct TranslationTurn: Identifiable {
 }
 
 @MainActor
-public final class LiveInterpreterService: ObservableObject, AVSpeechSynthesizerDelegate {
+public final class LiveInterpreterService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
     public static let shared = LiveInterpreterService()
     
     @Published public var isActive: Bool = false
@@ -47,7 +47,8 @@ public final class LiveInterpreterService: ObservableObject, AVSpeechSynthesizer
     private var expectedDirection: TranslationDirection = .russianToForeign
     private var foreignSpeechCompletion: (() -> Void)?
     
-    private init() {
+    private override init() {
+        super.init()
         foreignSynthesizer.delegate = self
     }
     
