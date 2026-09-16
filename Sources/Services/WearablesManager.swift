@@ -50,38 +50,32 @@ public final class WearablesManager: ObservableObject {
     
     public func startRegistration() {
         configureSDK()
-        statusMessage = "Регистрация в Meta View..."
+        statusMessage = "Открытие Meta View..."
         
-        let target = Wearables.shared as AnyObject
-        let selector = NSSelectorFromString("startRegistrationWithCompletionHandler:")
+        let bundleId = "com.rayban.meta.ai"
+        let encodedName = "Ray-Ban AI".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "Ray-BanAI"
+        let encodedScheme = "raybanmetaai://".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "raybanmetaai://"
         
-        if target.responds(to: selector) {
-            typealias RegisterFunc = @convention(c) (AnyObject, Selector, (@convention(block) (NSError?) -> Void)?) -> Void
-            if let method = class_getInstanceMethod(type(of: target), selector) {
-                let imp = method_getImplementation(method)
-                let callable = unsafeBitCast(imp, to: RegisterFunc.self)
-                callable(target, selector) { [weak self] error in
-                    DispatchQueue.main.async {
-                        if let error = error {
-                            self?.errorMessage = "Ошибка: \(error.localizedDescription)"
-                            self?.statusMessage = "Ошибка регистрации"
-                        } else {
-                            self?.statusMessage = "Запрос передан в Meta View!"
-                        }
+        let deepLinkUrls = [
+            "fb-viewapp://stella/dat/registration?appPackage=\(bundleId)&appName=\(encodedName)&action=register&metaAppId=1077803035118164&appLinkUrlScheme=\(encodedScheme)",
+            "fb-viewapp://stella/dat/registration?appPackage=\(bundleId)&appName=\(encodedName)&action=register&metaAppId=0&appLinkUrlScheme=\(encodedScheme)",
+            "fb-viewapp://dat/register?app_id=1077803035118164&app_name=\(encodedName)&app_link_url_scheme=\(encodedScheme)",
+            "fb-viewapp://"
+        ]
+        
+        for urlStr in deepLinkUrls {
+            if let url = URL(string: urlStr), UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:]) { success in
+                    if success {
+                        self.statusMessage = "Запрос передан в Meta View!"
                     }
                 }
                 return
             }
         }
         
-        // Fallback to standard async method
-        Task { @MainActor in
-            do {
-                try await Wearables.shared.startRegistration()
-            } catch {
-                self.errorMessage = "Ошибка регистрации: \(error.localizedDescription)"
-                self.statusMessage = "Ошибка регистрации"
-            }
+        if let fallback = URL(string: "fb-viewapp://") {
+            UIApplication.shared.open(fallback)
         }
     }
     
