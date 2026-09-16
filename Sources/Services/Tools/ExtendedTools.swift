@@ -3,7 +3,7 @@ import UIKit
 import CoreLocation
 
 // MARK: - Finance & Crypto Tool
-public final class FinanceTool {
+public final class FinanceTool: @unchecked Sendable {
     public static let shared = FinanceTool()
     private init() {}
     
@@ -58,7 +58,7 @@ public final class FinanceTool {
 }
 
 // MARK: - Visual Object Finder & Log
-public final class ObjectFinderTool {
+public final class ObjectFinderTool: @unchecked Sendable {
     public static let shared = ObjectFinderTool()
     private let defaultsKey = "visual_object_logs"
     

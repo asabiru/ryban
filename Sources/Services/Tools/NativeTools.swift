@@ -7,7 +7,7 @@ import CoreLocation
 import Combine
 
 // MARK: - Timer & Alarm Tool
-public final class TimerTool {
+public final class TimerTool: @unchecked Sendable {
     public static let shared = TimerTool()
     private init() {}
     
@@ -46,7 +46,7 @@ public final class TimerTool {
     }
 }
 
-public final class AlarmTool {
+public final class AlarmTool: @unchecked Sendable {
     public static let shared = AlarmTool()
     private init() {}
     
@@ -88,7 +88,7 @@ public final class AlarmTool {
 }
 
 // MARK: - Calendar & EventKit Tool
-public final class CalendarTool {
+public final class CalendarTool: @unchecked Sendable {
     public static let shared = CalendarTool()
     private let eventStore = EKEventStore()
     private init() {}
@@ -152,7 +152,7 @@ public final class CalendarTool {
 }
 
 // MARK: - Reminders Tool
-public final class RemindersTool {
+public final class RemindersTool: @unchecked Sendable {
     public static let shared = RemindersTool()
     private let eventStore = EKEventStore()
     private init() {}
@@ -184,7 +184,7 @@ public final class RemindersTool {
 }
 
 // MARK: - Music Control Tool
-public final class MusicTool {
+public final class MusicTool: @unchecked Sendable {
     public static let shared = MusicTool()
     private let player = MPMusicPlayerController.systemMusicPlayer
     private init() {}
@@ -211,7 +211,7 @@ public final class MusicTool {
 }
 
 // MARK: - Communication Tool (Telegram, WhatsApp, SMS, Calls)
-public final class CommunicationTool {
+public final class CommunicationTool: @unchecked Sendable {
     public static let shared = CommunicationTool()
     private init() {}
     
@@ -259,7 +259,7 @@ public final class CommunicationTool {
 }
 
 // MARK: - Weather Tool (Open-Meteo Free API)
-public final class WeatherTool {
+public final class WeatherTool: @unchecked Sendable {
     public static let shared = WeatherTool()
     private init() {}
     
@@ -365,7 +365,7 @@ public final class MemoryTool {
 }
 
 // MARK: - Location & Places Tool
-public final class LocationTool: NSObject, ObservableObject, CLLocationManagerDelegate {
+public final class LocationTool: NSObject, ObservableObject, CLLocationManagerDelegate, @unchecked Sendable {
     public static let shared = LocationTool()
     private let locationManager = CLLocationManager()
     @Published public var lastLocation: CLLocation?
