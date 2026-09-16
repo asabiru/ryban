@@ -51,8 +51,13 @@ public final class WearablesManager: ObservableObject {
     }
     
     public func startRegistration() async {
-        statusMessage = "Регистрация в Meta View..."
-        wearables.startRegistration()
+        do {
+            statusMessage = "Регистрация в Meta View..."
+            try await wearables.startRegistration()
+        } catch {
+            errorMessage = "Ошибка регистрации: \(error.localizedDescription)"
+            statusMessage = "Ошибка регистрации"
+        }
     }
     
     public func handleUrl(_ url: URL) async {
