@@ -78,7 +78,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import android.app.Application
+import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.MicNone
 import com.meta.wearable.dat.externalsampleapps.cameraaccess.gemini.GeminiAiService
+import com.meta.wearable.dat.externalsampleapps.cameraaccess.gemini.JarvisManager
+import com.meta.wearable.dat.externalsampleapps.cameraaccess.gemini.JarvisState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
@@ -115,26 +121,15 @@ fun LiveKitStreamScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val captureSource by SettingsManager.captureSourceFlow.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val geminiService = remember { GeminiAiService(context) }
-    val aiResponse by geminiService.aiResponseFlow.collectAsStateWithLifecycle()
-    val isAnalyzing by geminiService.isAnalyzingFlow.collectAsStateWithLifecycle()
+    val application = context.applicationContext as Application
     val coroutineScope = rememberCoroutineScope()
+    val jarvisManager = remember { JarvisManager(application, coroutineScope) }
+    val jarvisState by jarvisManager.jarvisState.collectAsStateWithLifecycle()
+    val userQuery by jarvisManager.userQuery.collectAsStateWithLifecycle()
+    val jarvisReply by jarvisManager.jarvisReply.collectAsStateWithLifecycle()
 
     DisposableEffect(Unit) {
-        onDispose { geminiService.release() }
-    }
-
-    LaunchedEffect(uiState.frozenFrame) {
-        val frame = uiState.frozenFrame
-        if (frame != null) {
-            coroutineScope.launch {
-                geminiService.analyzeScene(
-                    bitmap = frame,
-                    userQuestion = "Что перед тобой находится? Опиши подробно и полезно на русском языке (2-3 предложения).",
-                    apiKey = SettingsManager.geminiApiKey
-                )
-            }
-        }
+        onDispose { jarvisManager.release() }
     }
 
     LaunchedEffect(Unit) {
@@ -462,37 +457,61 @@ fun LiveKitStreamScreen(
             lastCaption?.let { caption -> CaptionBubble(caption) }
         }
 
-        // Gemini AI Response Overlay
+        // Jarvis Dialogue Card & Live Status
         AnimatedVisibility(
-            visible = isAnalyzing || aiResponse != null,
+            visible = jarvisState != JarvisState.IDLE || jarvisReply != null || userQuery != null,
             enter = fadeIn(),
             exit = fadeOut(),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
-                .padding(start = 20.dp, end = 20.dp, bottom = 110.dp),
+                .padding(start = 16.dp, end = 16.dp, bottom = 104.dp),
         ) {
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(16.dp))
+                    .background(Color.Black.copy(alpha = 0.85f), RoundedCornerShape(20.dp))
                     .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                if (isAnalyzing) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
-                        Text(
-                            text = "AI анализирует изображение с очков...",
-                            color = Color.White,
-                            fontSize = 14.sp,
-                        )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    when (jarvisState) {
+                        JarvisState.IDLE -> {
+                            Text("💤 Джарвис спит (скажите «Привет Джарвис»)", color = Color.Gray, fontSize = 13.sp)
+                        }
+                        JarvisState.LISTENING_QUERY -> {
+                            CircularProgressIndicator(color = Color.Green, modifier = Modifier.size(16.dp))
+                            Text("🎙️ Слушаю вас...", color = Color.Green, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        }
+                        JarvisState.CAPTURING_FRAME -> {
+                            CircularProgressIndicator(color = Color.Cyan, modifier = Modifier.size(16.dp))
+                            Text("📷 Делаю снимок через очки Ray-Ban...", color = Color.Cyan, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        }
+                        JarvisState.THINKING -> {
+                            CircularProgressIndicator(color = Color.Yellow, modifier = Modifier.size(16.dp))
+                            Text("🧠 Джарвис думает...", color = Color.Yellow, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        }
+                        JarvisState.SPEAKING -> {
+                            Icon(Icons.Default.VolumeUp, contentDescription = null, tint = Color.Green, modifier = Modifier.size(18.dp))
+                            Text("🗣️ Джарвис отвечает...", color = Color.Green, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        }
                     }
-                } else if (aiResponse != null) {
+                }
+
+                if (!userQuery.isNullOrBlank()) {
                     Text(
-                        text = aiResponse ?: "",
+                        text = "Вы: $userQuery",
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 14.sp,
+                    )
+                }
+
+                if (!jarvisReply.isNullOrBlank()) {
+                    Text(
+                        text = jarvisReply ?: "",
                         color = Color.White,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Medium,
@@ -501,7 +520,7 @@ fun LiveKitStreamScreen(
             }
         }
 
-        // Shutter front and center: pinning what you see is the primary act.
+        // Shutter front and center: Tap to ask Jarvis directly about what you see!
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -509,8 +528,10 @@ fun LiveKitStreamScreen(
                 .padding(bottom = 24.dp),
         ) {
             FreezeButton(
-                isFrozen = uiState.frozenFrame != null,
-                onClick = { viewModel.toggleFreeze() },
+                isFrozen = jarvisState == JarvisState.CAPTURING_FRAME || jarvisState == JarvisState.THINKING,
+                onClick = {
+                    jarvisManager.triggerManualQuery("Что передо мной находится? Опиши подробно на русском языке.")
+                },
             )
         }
         Row(
@@ -519,11 +540,19 @@ fun LiveKitStreamScreen(
                 .navigationBarsPadding()
                 .padding(start = 24.dp, bottom = 32.dp),
         ) {
-            LiveKitCallButton(
-                uiState = uiState,
-                onStart = { viewModel.start() },
-                onStop = { viewModel.stop() },
-            )
+            IconButton(
+                onClick = { jarvisManager.startWakeWordListening() },
+                modifier = Modifier
+                    .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                    .padding(8.dp),
+            ) {
+                Icon(
+                    imageVector = if (jarvisState == JarvisState.LISTENING_QUERY) Icons.Default.Mic else Icons.Default.MicNone,
+                    contentDescription = "Microphone",
+                    tint = if (jarvisState == JarvisState.LISTENING_QUERY) Color.Green else Color.White,
+                    modifier = Modifier.size(28.dp),
+                )
+            }
         }
     }
 }
