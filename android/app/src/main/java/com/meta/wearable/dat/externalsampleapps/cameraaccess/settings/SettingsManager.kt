@@ -70,7 +70,7 @@ object SettingsManager {
         }
 
     var geminiApiKey: String
-        get() = prefs.getString("geminiApiKey", null) ?: "AIzaSyBnCd2NQxKj4cFglJPt2f8-xVzNJLQ6cR4"
+        get() = prefs.getString("geminiApiKey", "") ?: ""
         set(value) = prefs.edit().putString("geminiApiKey", value.trim()).apply()
 
     /** Full base URL of the hosted gateway, scheme included (e.g. "https://gw.example.com"). */

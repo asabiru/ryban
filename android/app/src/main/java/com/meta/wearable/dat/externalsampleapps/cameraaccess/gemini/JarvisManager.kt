@@ -24,6 +24,7 @@ import com.meta.wearable.dat.camera.types.VideoQuality
 import com.meta.wearable.dat.core.Wearables
 import com.meta.wearable.dat.core.selectors.AutoDeviceSelector
 import com.meta.wearable.dat.externalsampleapps.cameraaccess.settings.SettingsManager
+import com.meta.wearable.dat.externalsampleapps.cameraaccess.tools.AndroidToolRouter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -218,6 +219,13 @@ class JarvisManager(
 
     private fun processUserQuery(query: String) {
         scope.launch {
+            val localToolReply = AndroidToolRouter.handle(application, query)
+            if (localToolReply != null) {
+                _jarvisReply.value = localToolReply
+                speak(localToolReply)
+                return@launch
+            }
+
             val lower = query.lowercase()
             val isVisual = VISUAL_KEYWORDS.any { lower.contains(it) }
 

@@ -10,6 +10,7 @@ package com.meta.wearable.dat.externalsampleapps.cameraaccess
 
 import android.Manifest.permission.BLUETOOTH_CONNECT
 import android.Manifest.permission.CAMERA
+import android.Manifest.permission.POST_NOTIFICATIONS
 import android.Manifest.permission.RECORD_AUDIO
 import android.os.Bundle
 import android.view.WindowManager
@@ -39,7 +40,7 @@ class MainActivity : ComponentActivity() {
     // grants that the runtime dialog reports as "denied" on modern Android,
     // which made an all-of-them check fail (and snackbar) on every launch.
     val PERMISSIONS: Array<String> = arrayOf(
-        BLUETOOTH_CONNECT, RECORD_AUDIO, CAMERA,
+        BLUETOOTH_CONNECT, RECORD_AUDIO, CAMERA, POST_NOTIFICATIONS,
     )
   }
 
