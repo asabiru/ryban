@@ -428,7 +428,9 @@ class JarvisManager(
             val responseBody = response.body?.string().orEmpty()
 
             if (!response.isSuccessful) {
-                return@withContext "Ошибка ответа AI (${response.code})"
+                val safeError = responseBody.replace(Regex("AIzaSy[A-Za-z0-9_-]+"), "[key]").take(600)
+                Log.e(TAG, "Gemini HTTP ${response.code}: $safeError")
+                return@withContext "Ошибка ответа AI (${response.code}): ${response.message.ifBlank { "проверьте Gemini API key и доступ API" }}"
             }
 
             val responseJson = JSONObject(responseBody)
