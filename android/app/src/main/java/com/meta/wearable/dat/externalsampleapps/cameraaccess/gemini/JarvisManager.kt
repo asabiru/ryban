@@ -95,6 +95,7 @@ class JarvisManager(
     val lastCapturedFrame: StateFlow<Bitmap?> = _lastCapturedFrame.asStateFlow()
 
     private var isContinuousListening = false
+    private var recognitionInProgress = false
 
     private val _isWakeListening = MutableStateFlow(false)
     val isWakeListening: StateFlow<Boolean> = _isWakeListening.asStateFlow()
@@ -102,6 +103,9 @@ class JarvisManager(
     init {
         scope.launch(Dispatchers.Main) {
             setupSpeechRecognizer()
+            delay(1200)
+            isContinuousListening = true
+            startWakeWordListening()
         }
     }
 
@@ -155,15 +159,17 @@ class JarvisManager(
                 override fun onEndOfSpeech() {}
 
                 override fun onError(error: Int) {
+                    recognitionInProgress = false
                     if (isContinuousListening && _jarvisState.value == JarvisState.IDLE) {
                         scope.launch {
-                            delay(1500)
+                            delay(1200)
                             if (isContinuousListening) startWakeWordListening()
                         }
                     }
                 }
 
                 override fun onResults(results: Bundle?) {
+                    recognitionInProgress = false
                     val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                     val text = matches?.firstOrNull()?.trim() ?: ""
                     handleRecognizedSpeech(text)
@@ -176,7 +182,8 @@ class JarvisManager(
     }
 
     fun startWakeWordListening() {
-        if (!isContinuousListening || _jarvisState.value != JarvisState.IDLE) return
+        if (!isContinuousListening || recognitionInProgress || _jarvisState.value != JarvisState.IDLE) return
+        recognitionInProgress = true
         _isWakeListening.value = true
         scope.launch(Dispatchers.Main) {
             try {
@@ -196,6 +203,7 @@ class JarvisManager(
     fun stopWakeWordListening() {
         isContinuousListening = false
         _isWakeListening.value = false
+        recognitionInProgress = false
         _jarvisState.value = JarvisState.IDLE
         speechRecognizer?.cancel()
     }
@@ -231,7 +239,9 @@ class JarvisManager(
                 .trim()
 
             if (cleanQuery.isBlank()) {
-                cleanQuery = "Что ты видишь вокруг меня?"
+                _jarvisState.value = JarvisState.LISTENING_QUERY
+                speak("Слушаю")
+                return
             }
 
             _userQuery.value = cleanQuery
@@ -438,6 +448,7 @@ class JarvisManager(
     fun release() {
         isContinuousListening = false
         _isWakeListening.value = false
+        recognitionInProgress = false
         speechRecognizer?.cancel()
         speechRecognizer?.destroy()
         speechRecognizer = null
