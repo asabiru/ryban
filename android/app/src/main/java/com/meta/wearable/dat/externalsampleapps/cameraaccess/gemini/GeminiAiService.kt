@@ -24,7 +24,7 @@ class GeminiAiService(private val context: Context) : TextToSpeech.OnInitListene
 
     companion object {
         private const val TAG = "GeminiAiService"
-        private const val MODEL = "gemini-2.5-flash"
+        private const val MODEL = "gemini-3.6-flash"
         private const val DEFAULT_SYSTEM_PROMPT = 
             "Ты — русскоязычный персональный AI-ассистент в смарт-очках Ray-Ban Meta. " +
             "Ты видишь мир через камеру очков пользователя и говоришь с ним кратко, емко и по делу (1-3 предложения на русском языке), " +

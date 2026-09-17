@@ -59,7 +59,7 @@ class JarvisManager(
 
     companion object {
         private const val TAG = "JarvisManager"
-        private const val MODEL = "gemini-2.5-flash"
+        private const val MODEL = "gemini-3.6-flash"
         private const val SYSTEM_PROMPT =
             "Ты — Джарвис, умный персональный голосовой AI-ассистент на русском языке, встроенный в смарт-очки Ray-Ban Meta. " +
             "Ты общаешься с пользователем, когда он идет по улице или занимается делами. " +
