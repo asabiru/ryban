@@ -292,18 +292,18 @@ fun LiveKitStreamScreen(
                 Column(
                     modifier = Modifier.align(Alignment.Center).padding(horizontal = 32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(
-                        text = "Not connected",
+                        text = "Ray-Ban Meta AI (Джарвис)",
                         color = Color.White,
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        text = state.message,
-                        color = Color.White.copy(alpha = 0.7f),
-                        fontSize = 13.sp,
+                        text = "Скажите голосом: «Привет Джарвис» или нажмите кнопку микрофона",
+                        color = Color.White.copy(alpha = 0.75f),
+                        fontSize = 14.sp,
                         textAlign = TextAlign.Center,
                     )
                 }
