@@ -433,6 +433,9 @@ class JarvisManager(
                 if (responseBody.contains("reported as leaked", ignoreCase = true)) {
                     return@withContext "Ключ Gemini заблокирован как утёкший. Введите новый Gemini API key в настройках."
                 }
+                if (responseBody.contains("location is not supported", ignoreCase = true)) {
+                    return@withContext "Gemini недоступен в текущем регионе. Включите Karing через сервер поддерживаемой страны и повторите запрос."
+                }
                 return@withContext "Ошибка ответа AI (${response.code}): ${response.message.ifBlank { "проверьте Gemini API key и доступ API" }}"
             }
 
