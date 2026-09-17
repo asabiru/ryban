@@ -52,6 +52,7 @@ object AndroidToolRouter {
         parseMusic(context, lower)?.let { return it }
         parseCall(context, text, lower)?.let { return it }
         parseMessage(context, text, lower)?.let { return it }
+        parseTaxi(context, lower)?.let { return it }
         parseMaps(context, text, lower)?.let { return it }
         parseSos(context, lower)?.let { return it }
         if (lower.contains("погода") || lower.contains("температур")) return weather()
@@ -205,6 +206,15 @@ object AndroidToolRouter {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         })
         return "Открываю новое сообщение для отправки."
+    }
+
+    private fun parseTaxi(context: Context, lower: String): String? {
+        if (!lower.contains("такси") && !lower.contains("яндекс go") && !lower.contains("uber")) return null
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://go.yandex.ru/")).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+        return "Открываю приложение такси. Адрес и подтверждение поездки останутся за вами."
     }
 
     private fun parseMaps(context: Context, original: String, lower: String): String? {
