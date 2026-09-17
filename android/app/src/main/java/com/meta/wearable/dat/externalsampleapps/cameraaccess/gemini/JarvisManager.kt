@@ -430,6 +430,9 @@ class JarvisManager(
             if (!response.isSuccessful) {
                 val safeError = responseBody.replace(Regex("AIzaSy[A-Za-z0-9_-]+"), "[key]").take(600)
                 Log.e(TAG, "Gemini HTTP ${response.code}: $safeError")
+                if (responseBody.contains("reported as leaked", ignoreCase = true)) {
+                    return@withContext "Ключ Gemini заблокирован как утёкший. Введите новый Gemini API key в настройках."
+                }
                 return@withContext "Ошибка ответа AI (${response.code}): ${response.message.ifBlank { "проверьте Gemini API key и доступ API" }}"
             }
 
