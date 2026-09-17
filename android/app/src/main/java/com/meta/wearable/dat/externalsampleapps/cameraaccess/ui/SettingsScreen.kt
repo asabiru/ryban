@@ -1,5 +1,7 @@
 package com.meta.wearable.dat.externalsampleapps.cameraaccess.ui
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +22,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -29,6 +32,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.meta.wearable.dat.externalsampleapps.cameraaccess.settings.IntelligenceEngine
 import com.meta.wearable.dat.externalsampleapps.cameraaccess.settings.SettingsManager
@@ -39,8 +43,10 @@ fun SettingsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     var apiKey by remember { mutableStateOf(SettingsManager.geminiApiKey) }
     var engine by remember { mutableStateOf(SettingsManager.intelligenceEngine) }
+    var readNotifications by remember { mutableStateOf(SettingsManager.notificationReadEnabled) }
 
     BackHandler { onBack() }
 
@@ -66,6 +72,32 @@ fun SettingsScreen(
                 "Камера очков включается только по запросу Джарвиса и закрывается сразу после снимка.",
                 style = MaterialTheme.typography.bodyMedium,
             )
+
+            Text("Уведомления", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Разрешение нужно для чтения Telegram/WhatsApp и быстрых ответов через уведомления. Джарвис не будет читать их без включенного переключателя.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Button(
+                onClick = { context.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Открыть доступ к уведомлениям")
+            }
+            androidx.compose.foundation.layout.Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+            ) {
+                Text("Озвучивать входящие сообщения")
+                Switch(
+                    checked = readNotifications,
+                    onCheckedChange = {
+                        readNotifications = it
+                        SettingsManager.notificationReadEnabled = it
+                    },
+                )
+            }
 
             Text("AI-модель", style = MaterialTheme.typography.titleMedium)
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {

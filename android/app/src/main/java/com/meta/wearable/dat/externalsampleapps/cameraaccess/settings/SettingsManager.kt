@@ -73,6 +73,21 @@ object SettingsManager {
         get() = prefs.getString("geminiApiKey", "") ?: ""
         set(value) = prefs.edit().putString("geminiApiKey", value.trim()).apply()
 
+    var notificationReadEnabled: Boolean
+        get() = prefs.getBoolean("notificationReadEnabled", false)
+        set(value) = prefs.edit().putBoolean("notificationReadEnabled", value).apply()
+
+    fun saveLatestNotification(context: Context, text: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString("latestNotification", text)
+            .apply()
+    }
+
+    fun latestNotification(context: Context): String? =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString("latestNotification", null)
+
     /** Full base URL of the hosted gateway, scheme included (e.g. "https://gw.example.com"). */
     var gatewayBaseUrl: String
         get() = prefs.getString("gatewayBaseUrl", null) ?: Secrets.gatewayBaseUrl

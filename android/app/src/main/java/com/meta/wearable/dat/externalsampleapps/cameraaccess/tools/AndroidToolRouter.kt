@@ -13,6 +13,8 @@ import android.telephony.PhoneNumberUtils
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.meta.wearable.dat.externalsampleapps.cameraaccess.R
+import com.meta.wearable.dat.externalsampleapps.cameraaccess.notifications.NotificationReplyBridge
+import com.meta.wearable.dat.externalsampleapps.cameraaccess.settings.SettingsManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -40,6 +42,7 @@ object AndroidToolRouter {
         val text = rawText.trim()
         val lower = text.lowercase(Locale("ru", "RU"))
 
+        parseNotificationCommand(context, text, lower)?.let { return it }
         parseTimer(context, lower)?.let { return it }
         parseAlarm(context, lower)?.let { return it }
         parseCalendar(context, text, lower)?.let { return it }
@@ -59,6 +62,23 @@ object AndroidToolRouter {
         }
         if (lower == "что ты умеешь" || lower == "помощь" || lower == "команды") {
             return "Я могу поставить таймер и будильник, создать событие и напоминание, сохранить заметку или факт, управлять музыкой, позвонить, написать СМС, открыть карту, рассказать погоду и курсы валют. Для камеры скажите: «Джарвис, что передо мной?»."
+        }
+        return null
+    }
+
+    private fun parseNotificationCommand(context: Context, original: String, lower: String): String? {
+        if (lower.contains("прочитай уведомлен") || lower.contains("какие уведомлен") || lower == "уведомления") {
+            return SettingsManager.latestNotification(context)?.let { "Последнее уведомление: $it" }
+                ?: "Новых уведомлений пока нет."
+        }
+        if (lower.contains("ответь") && (lower.contains("телеграм") || lower.contains("whatsapp") || lower.contains("сообщен"))) {
+            val reply = original.substringAfter("ответь", "").trim()
+            if (reply.isBlank()) return "Скажите текст ответа после слова «ответь»."
+            return if (NotificationReplyBridge.reply(reply)) {
+                "Ответ отправлен в последнее доступное приложение сообщений."
+            } else {
+                "Не нашел доступную кнопку ответа. Сначала откройте уведомление Telegram или WhatsApp."
+            }
         }
         return null
     }
@@ -262,5 +282,9 @@ class ToolAlarmReceiver : BroadcastReceiver() {
             .setAutoCancel(true)
             .build()
         NotificationManagerCompat.from(context).notify(System.currentTimeMillis().toInt(), notification)
+        com.meta.wearable.dat.externalsampleapps.cameraaccess.notifications.JarvisSpeech.speak(
+            context,
+            "Таймер Джарвиса завершен. ${intent.getStringExtra("body") ?: "Время вышло"}."
+        )
     }
 }
