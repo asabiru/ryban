@@ -94,32 +94,20 @@ public final class WearablesManager: ObservableObject {
     
     public func startRegistration() {
         configureSDK()
-        statusMessage = "Открытие Meta View..."
+        statusMessage = "Запрос регистрации в Meta AI..."
+        errorMessage = nil
         
-        let bundleId = "app.mulberry1261.emerald6299"
-        let encodedName = "Ray-Ban AI".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "Ray-BanAI"
-        let encodedScheme = "raybanmetaai://".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "raybanmetaai://"
-        
-        let deepLinkUrls = [
-            "fb-viewapp://stella/dat/registration?appPackage=\(bundleId)&appName=\(encodedName)&action=register&metaAppId=0&appLinkUrlScheme=\(encodedScheme)",
-            "fb-viewapp://dat/register?app_id=0&app_name=\(encodedName)&app_link_url_scheme=\(encodedScheme)",
-            "fb-viewapp://stella/dat/registration?appPackage=\(bundleId)&appName=\(encodedName)&action=register&metaAppId=1077803035118164&appLinkUrlScheme=\(encodedScheme)",
-            "fb-viewapp://"
-        ]
-        
-        for urlStr in deepLinkUrls {
-            if let url = URL(string: urlStr), UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.open(url, options: [:]) { success in
-                    if success {
-                        self.statusMessage = "Запрос передан в Meta View!"
-                    }
-                }
-                return
+        Task { @MainActor in
+            do {
+                try await Wearables.shared.startRegistration()
+            } catch RegistrationError.alreadyRegistered {
+                self.isRegistered = true
+                self.statusMessage = "Очки уже зарегистрированы!"
+                await self.connectAndStartStreaming()
+            } catch {
+                self.errorMessage = "Ошибка: \(error.localizedDescription)"
+                self.statusMessage = "Ошибка регистрации"
             }
-        }
-        
-        if let fallback = URL(string: "fb-viewapp://") {
-            UIApplication.shared.open(fallback)
         }
     }
     

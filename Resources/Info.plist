@@ -33,6 +33,7 @@
 			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>mwdat-1077803035118164</string>
 				<string>raybanmetaai</string>
 			</array>
 		</dict>
@@ -105,12 +106,22 @@
 	<!-- Meta Wearables DAT Configuration -->
 	<key>MWDAT</key>
 	<dict>
+		<key>Analytics</key>
+		<dict>
+			<key>OptOut</key>
+			<true/>
+		</dict>
+		<key>CrashReporting</key>
+		<dict>
+			<key>OptOut</key>
+			<true/>
+		</dict>
 		<key>AppLinkURLScheme</key>
 		<string>raybanmetaai://</string>
 		<key>MetaAppID</key>
-		<string>0</string>
+		<string>1077803035118164</string>
 		<key>ClientToken</key>
-		<string>developer-mode-placeholder</string>
+		<string>AR|1077803035118164|9af3681db3d379371e6244bc004370aa</string>
 		<key>TeamID</key>
 		<string>8PGXC4V227</string>
 	</dict>
