@@ -110,3 +110,12 @@ fun SettingsScreen(
         }
     }
 }
+
+@Composable
+fun FooterText(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}

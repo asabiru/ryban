@@ -143,7 +143,7 @@ object AndroidToolRouter {
         }
         if (lower.contains("что ты помнишь") || lower.contains("моя память")) {
             val memories = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getStringSet(MEMORIES, emptySet()).orEmpty()
-            return if (memories.isEmpty()) "Память пока пустая." else "Я помню: ${memories.takeLast(5).joinToString("; ")}."
+            return if (memories.isEmpty()) "Память пока пустая." else "Я помню: ${memories.toList().takeLast(5).joinToString("; ")}."
         }
         return null
     }
