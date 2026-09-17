@@ -61,6 +61,7 @@ fun JarvisScreen(
     val scope = rememberCoroutineScope()
     val jarvis = remember { JarvisManager(application, scope) }
     val state by jarvis.jarvisState.collectAsStateWithLifecycle()
+    val isWakeListening by jarvis.isWakeListening.collectAsStateWithLifecycle()
     val query by jarvis.userQuery.collectAsStateWithLifecycle()
     val reply by jarvis.jarvisReply.collectAsStateWithLifecycle()
 
@@ -100,7 +101,8 @@ fun JarvisScreen(
                     state == JarvisState.THINKING -> "Думаю..."
                     state == JarvisState.CAPTURING_FRAME -> "Смотрю через камеру очков..."
                     state == JarvisState.SPEAKING -> "Отвечаю в динамики очков..."
-                    isRegistered && hasActiveDevice -> "Очки подключены. Скажите: «Привет Джарвис»"
+                    isRegistered && hasActiveDevice && isWakeListening -> "Слушаю. Скажите: «Привет Джарвис»"
+                    isRegistered && hasActiveDevice -> "Очки подключены. Нажмите микрофон, чтобы включить Джарвиса"
                     else -> "Подключите очки в Meta AI"
                 },
                 color = Color.White.copy(alpha = 0.72f),
@@ -151,13 +153,13 @@ fun JarvisScreen(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             IconButton(
-                onClick = { jarvis.startWakeWordListening() },
+                onClick = { jarvis.toggleWakeWordListening() },
                 modifier = Modifier.background(Color(0xAA332A42), RoundedCornerShape(50)),
             ) {
                 Icon(
-                    if (state == JarvisState.LISTENING_QUERY) Icons.Default.Mic else Icons.Default.MicNone,
-                    contentDescription = "Слушать",
-                    tint = if (state == JarvisState.LISTENING_QUERY) Color.Green else Color.White,
+                    if (isWakeListening) Icons.Default.Mic else Icons.Default.MicNone,
+                    contentDescription = if (isWakeListening) "Выключить микрофон" else "Включить Джарвиса",
+                    tint = if (isWakeListening) Color.Green else Color.White,
                 )
             }
         }

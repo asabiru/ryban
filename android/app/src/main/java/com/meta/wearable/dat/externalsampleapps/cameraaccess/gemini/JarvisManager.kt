@@ -93,12 +93,14 @@ class JarvisManager(
     private val _lastCapturedFrame = MutableStateFlow<Bitmap?>(null)
     val lastCapturedFrame: StateFlow<Bitmap?> = _lastCapturedFrame.asStateFlow()
 
-    private var isContinuousListening = true
+    private var isContinuousListening = false
+
+    private val _isWakeListening = MutableStateFlow(false)
+    val isWakeListening: StateFlow<Boolean> = _isWakeListening.asStateFlow()
 
     init {
         scope.launch(Dispatchers.Main) {
             setupSpeechRecognizer()
-            startWakeWordListening()
         }
     }
 
@@ -120,7 +122,7 @@ class JarvisManager(
             delay(waitMs)
             if (_jarvisState.value == JarvisState.SPEAKING) {
                 _jarvisState.value = JarvisState.IDLE
-                startWakeWordListening()
+                if (isContinuousListening) startWakeWordListening()
             }
         }
     }
@@ -143,8 +145,8 @@ class JarvisManager(
                 override fun onError(error: Int) {
                     if (isContinuousListening && _jarvisState.value == JarvisState.IDLE) {
                         scope.launch {
-                            delay(1000)
-                            startWakeWordListening()
+                            delay(1500)
+                            if (isContinuousListening) startWakeWordListening()
                         }
                     }
                 }
@@ -162,7 +164,8 @@ class JarvisManager(
     }
 
     fun startWakeWordListening() {
-        if (_jarvisState.value != JarvisState.IDLE) return
+        if (!isContinuousListening || _jarvisState.value != JarvisState.IDLE) return
+        _isWakeListening.value = true
         scope.launch(Dispatchers.Main) {
             try {
                 val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -175,6 +178,21 @@ class JarvisManager(
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to start speech listening", e)
             }
+        }
+    }
+
+    fun stopWakeWordListening() {
+        isContinuousListening = false
+        _isWakeListening.value = false
+        _jarvisState.value = JarvisState.IDLE
+        speechRecognizer?.cancel()
+    }
+
+    fun toggleWakeWordListening() {
+        if (isContinuousListening) stopWakeWordListening()
+        else {
+            isContinuousListening = true
+            startWakeWordListening()
         }
     }
 
@@ -407,6 +425,8 @@ class JarvisManager(
 
     fun release() {
         isContinuousListening = false
+        _isWakeListening.value = false
+        speechRecognizer?.cancel()
         speechRecognizer?.destroy()
         speechRecognizer = null
         tts?.stop()
