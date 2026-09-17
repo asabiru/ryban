@@ -22,6 +22,8 @@ public final class WearablesManager: ObservableObject {
     private var camera: Camera?
     private var stream: MWDATCamera.Stream?
     
+    private var devicesListenerToken: (any AnyListenerToken)?
+    private var regListenerToken: (any AnyListenerToken)?
     private var registrationTask: Task<Void, Never>?
     private var devicesTask: Task<Void, Never>?
     private var sessionTask: Task<Void, Never>?
@@ -125,9 +127,9 @@ public final class WearablesManager: ObservableObject {
     }
     
     private func observeRegistration() {
-        registrationTask?.cancel()
-        registrationTask = Task { [weak self] in
-            for await state in Wearables.shared.registrationStateStream() {
+        guard regListenerToken == nil else { return }
+        regListenerToken = Wearables.shared.addRegistrationStateListener { [weak self] state in
+            Task { @MainActor in
                 guard let self = self else { return }
                 switch state {
                 case .registered:
@@ -135,25 +137,29 @@ public final class WearablesManager: ObservableObject {
                     self.statusMessage = "Очки зарегистрированы"
                     await self.connectAndStartStreaming()
                 case .registering:
-                    self.statusMessage = "Идет регистрация..."
+                    self.statusMessage = "Идет регистрация в Meta AI..."
                 default:
                     self.isRegistered = false
                     self.isConnected = false
-                    self.statusMessage = "Очки не зарегистрированы"
+                    self.statusMessage = "Ожидание подключения очков"
                 }
             }
         }
     }
     
     private func observeDevices() {
-        devicesTask?.cancel()
-        devicesTask = Task { [weak self] in
-            for await devices in Wearables.shared.devicesStream() {
+        guard devicesListenerToken == nil else { return }
+        devicesListenerToken = Wearables.shared.addDevicesListener { [weak self] deviceIds in
+            Task { @MainActor in
                 guard let self = self else { return }
-                if !devices.isEmpty {
-                    self.statusMessage = "Очки обнаружены (\(devices.count))"
+                if let firstId = deviceIds.first {
+                    let device = Wearables.shared.deviceForIdentifier(firstId)
+                    self.statusMessage = "Очки в сети: \(device?.name ?? "Ray-Ban Meta")"
                     self.isConnected = true
                     await self.connectAndStartStreaming()
+                } else {
+                    self.isConnected = false
+                    self.statusMessage = "Очки отключены"
                 }
             }
         }
