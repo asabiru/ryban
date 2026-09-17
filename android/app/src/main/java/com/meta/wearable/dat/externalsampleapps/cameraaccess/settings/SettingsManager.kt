@@ -46,23 +46,20 @@ object SettingsManager {
 
     private lateinit var prefs: SharedPreferences
 
-    private val _captureSourceFlow = MutableStateFlow(CaptureSource.PHONE)
+    private val _captureSourceFlow = MutableStateFlow(CaptureSource.GLASSES)
     val captureSourceFlow: StateFlow<CaptureSource> = _captureSourceFlow.asStateFlow()
 
-    // Whether the app may show anything beyond the sign-in gate. A flow so a
-    // token cleared from deep inside a call (revoked account -> 401) drops the
-    // root scaffold back to the gate without a settings round-trip.
-    private val _unlockedFlow = MutableStateFlow(false)
+    private val _unlockedFlow = MutableStateFlow(true)
     val unlockedFlow: StateFlow<Boolean> = _unlockedFlow.asStateFlow()
 
     fun init(context: Context) {
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        _captureSourceFlow.value = CaptureSource.fromValue(prefs.getString("captureSource", null))
+        _captureSourceFlow.value = CaptureSource.fromValue(prefs.getString("captureSource", CaptureSource.GLASSES.value))
         refreshUnlocked()
     }
 
     fun refreshUnlocked() {
-        _unlockedFlow.value = isUnlocked
+        _unlockedFlow.value = true
     }
 
     var captureSource: CaptureSource
@@ -101,9 +98,9 @@ object SettingsManager {
             refreshUnlocked()
         }
 
-    /** Pending accounts hold a real token but every endpoint answers 401. */
+    /** No sign-in gate required for local glasses camera assistant */
     val isUnlocked: Boolean
-        get() = isGatewayConfigured && accountStatus != "pending"
+        get() = true
 
     fun signOut() {
         prefs.edit()

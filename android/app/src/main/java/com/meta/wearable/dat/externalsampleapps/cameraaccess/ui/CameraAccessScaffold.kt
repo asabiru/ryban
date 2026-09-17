@@ -76,10 +76,6 @@ fun CameraAccessScaffold(
   LaunchedEffect(uiState.isSettingsVisible) {
     if (!uiState.isSettingsVisible) SettingsManager.refreshUnlocked()
   }
-  if (!unlocked) {
-    AccessCodeScreen(onUnlocked = { SettingsManager.refreshUnlocked() }, modifier = modifier)
-    return
-  }
 
   // Observe camera permission errors and show snackbar
   LaunchedEffect(uiState.recentError) {
