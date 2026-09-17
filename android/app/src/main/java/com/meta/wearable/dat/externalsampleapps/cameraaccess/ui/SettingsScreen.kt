@@ -81,6 +81,7 @@ private fun SettingsMainScreen(
 ) {
     val captureSource by SettingsManager.captureSourceFlow.collectAsStateWithLifecycle()
     var intelligenceEngine by remember { mutableStateOf(SettingsManager.intelligenceEngine) }
+    var geminiApiKey by remember { mutableStateOf(SettingsManager.geminiApiKey) }
     var showCaptions by remember { mutableStateOf(SettingsManager.showCaptions) }
     var gatewayStatus by remember { mutableStateOf<GatewayStatus>(GatewayStatus.Checking) }
     var showResetDialog by remember { mutableStateOf(false) }
@@ -161,6 +162,19 @@ private fun SettingsMainScreen(
                     "Google Gemini Live. Applies to the next call."
                 },
             )
+
+            OutlinedTextField(
+                value = geminiApiKey,
+                onValueChange = {
+                    geminiApiKey = it
+                    SettingsManager.geminiApiKey = it
+                },
+                label = { Text("Gemini API Key") },
+                placeholder = { Text("AIzaSy...") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+            )
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,

@@ -69,6 +69,10 @@ object SettingsManager {
             _captureSourceFlow.value = value
         }
 
+    var geminiApiKey: String
+        get() = prefs.getString("geminiApiKey", "") ?: ""
+        set(value) = prefs.edit().putString("geminiApiKey", value.trim()).apply()
+
     /** Full base URL of the hosted gateway, scheme included (e.g. "https://gw.example.com"). */
     var gatewayBaseUrl: String
         get() = prefs.getString("gatewayBaseUrl", null) ?: Secrets.gatewayBaseUrl

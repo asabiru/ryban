@@ -77,7 +77,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.meta.wearable.dat.externalsampleapps.cameraaccess.gemini.GeminiAiService
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.launch
 import com.meta.wearable.dat.externalsampleapps.cameraaccess.livekit.AgentStatus
 import com.meta.wearable.dat.externalsampleapps.cameraaccess.livekit.Caption
 import com.meta.wearable.dat.externalsampleapps.cameraaccess.livekit.LiveKitSessionViewModel
@@ -110,6 +113,28 @@ fun LiveKitStreamScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val captureSource by SettingsManager.captureSourceFlow.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val geminiService = remember { GeminiAiService(context) }
+    val aiResponse by geminiService.aiResponseFlow.collectAsStateWithLifecycle()
+    val isAnalyzing by geminiService.isAnalyzingFlow.collectAsStateWithLifecycle()
+    val coroutineScope = rememberCoroutineScope()
+
+    DisposableEffect(Unit) {
+        onDispose { geminiService.release() }
+    }
+
+    LaunchedEffect(uiState.frozenFrame) {
+        val frame = uiState.frozenFrame
+        if (frame != null) {
+            coroutineScope.launch {
+                geminiService.analyzeScene(
+                    bitmap = frame,
+                    userQuestion = "Что перед тобой находится? Опиши подробно и полезно на русском языке (2-3 предложения).",
+                    apiKey = SettingsManager.geminiApiKey
+                )
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         if (!viewModel.autoStartIfNeeded()) {
@@ -434,6 +459,45 @@ fun LiveKitStreamScreen(
                 .padding(start = 24.dp, end = 24.dp, bottom = 104.dp),
         ) {
             lastCaption?.let { caption -> CaptionBubble(caption) }
+        }
+
+        // Gemini AI Response Overlay
+        AnimatedVisibility(
+            visible = isAnalyzing || aiResponse != null,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(start = 20.dp, end = 20.dp, bottom = 110.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(16.dp))
+                    .padding(16.dp),
+            ) {
+                if (isAnalyzing) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
+                        Text(
+                            text = "AI анализирует изображение с очков...",
+                            color = Color.White,
+                            fontSize = 14.sp,
+                        )
+                    }
+                } else if (aiResponse != null) {
+                    Text(
+                        text = aiResponse ?: "",
+                        color = Color.White,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+            }
         }
 
         // Shutter front and center: pinning what you see is the primary act.
