@@ -278,34 +278,45 @@ class JarvisManager(
 
     private fun convertVideoFrameToBitmap(videoFrame: VideoFrame): Bitmap? {
         return try {
-            val yBuffer = videoFrame.data[0].buffer
-            val uBuffer = videoFrame.data[1].buffer
-            val vBuffer = videoFrame.data[2].buffer
+            val buffer = videoFrame.buffer
+            val dataSize = buffer.remaining()
+            val byteArray = ByteArray(dataSize)
 
-            val ySize = yBuffer.remaining()
-            val uSize = uBuffer.remaining()
-            val vSize = vBuffer.remaining()
+            val originalPosition = buffer.position()
+            buffer.get(byteArray)
+            buffer.position(originalPosition)
 
-            val nv21 = ByteArray(ySize + uSize + vSize)
-            yBuffer.get(nv21, 0, ySize)
-            vBuffer.get(nv21, ySize, vSize)
-            uBuffer.get(nv21, ySize + vSize, uSize)
-
-            val yuvImage = YuvImage(nv21, ImageFormat.NV21, videoFrame.width, videoFrame.height, null)
-            val out = ByteArrayOutputStream()
-            yuvImage.compressToJpeg(Rect(0, 0, videoFrame.width, videoFrame.height), 85, out)
-            val jpegBytes = out.toByteArray()
-
-            val bitmap = BitmapFactory.decodeByteArray(jpegBytes, 0, jpegBytes.size)
-            if (videoFrame.rotationDegrees != 0) {
-                val matrix = Matrix().apply { postRotate(videoFrame.rotationDegrees.toFloat()) }
-                Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-            } else {
-                bitmap
+            val nv21 = convertI420toNV21(byteArray, videoFrame.width, videoFrame.height)
+            val image = YuvImage(nv21, ImageFormat.NV21, videoFrame.width, videoFrame.height, null)
+            val out = ByteArrayOutputStream().use { stream ->
+                image.compressToJpeg(Rect(0, 0, videoFrame.width, videoFrame.height), 75, stream)
+                stream.toByteArray()
             }
+
+            BitmapFactory.decodeByteArray(out, 0, out.size)
         } catch (e: Exception) {
             null
         }
+    }
+
+    private fun convertI420toNV21(i420: ByteArray, width: Int, height: Int): ByteArray {
+        val nv21 = ByteArray(i420.size)
+        val ySize = width * height
+        val uSize = ySize / 4
+
+        System.arraycopy(i420, 0, nv21, 0, ySize)
+
+        val uStart = ySize
+        val vStart = ySize + uSize
+        var nv21Index = ySize
+
+        for (i in 0 until uSize) {
+            nv21[nv21Index] = i420[vStart + i]
+            nv21[nv21Index + 1] = i420[uStart + i]
+            nv21Index += 2
+        }
+
+        return nv21
     }
 
     private suspend fun callGeminiApi(bitmap: Bitmap?, userQuery: String, apiKey: String): String = withContext(Dispatchers.IO) {
