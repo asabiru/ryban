@@ -81,6 +81,7 @@ class JarvisManager(
 
     private var tts: TextToSpeech? = TextToSpeech(application, this, "com.google.android.tts")
     private var speechRecognizer: SpeechRecognizer? = null
+    private var wakeWordEngine: VoskWakeWordEngine? = null
 
     private val _jarvisState = MutableStateFlow(JarvisState.IDLE)
     val jarvisState: StateFlow<JarvisState> = _jarvisState.asStateFlow()
@@ -103,6 +104,9 @@ class JarvisManager(
     init {
         scope.launch(Dispatchers.Main) {
             setupSpeechRecognizer()
+            wakeWordEngine = VoskWakeWordEngine(application, scope) {
+                handleWakeWordDetected()
+            }
             delay(1200)
             isContinuousListening = true
             startWakeWordListening()
@@ -160,11 +164,9 @@ class JarvisManager(
 
                 override fun onError(error: Int) {
                     recognitionInProgress = false
-                    if (isContinuousListening && _jarvisState.value == JarvisState.IDLE) {
-                        scope.launch {
-                            delay(1200)
-                            if (isContinuousListening) startWakeWordListening()
-                        }
+                    if (_jarvisState.value == JarvisState.LISTENING_QUERY) {
+                        _jarvisState.value = JarvisState.IDLE
+                        if (isContinuousListening) startWakeWordListening()
                     }
                 }
 
@@ -182,9 +184,28 @@ class JarvisManager(
     }
 
     fun startWakeWordListening() {
-        if (!isContinuousListening || recognitionInProgress || _jarvisState.value != JarvisState.IDLE) return
-        recognitionInProgress = true
+        if (!isContinuousListening || _jarvisState.value != JarvisState.IDLE) return
         _isWakeListening.value = true
+        wakeWordEngine?.start()
+    }
+
+    private fun handleWakeWordDetected() {
+        if (!isContinuousListening || _jarvisState.value != JarvisState.IDLE) return
+        wakeWordEngine?.stop()
+        _isWakeListening.value = false
+        _jarvisState.value = JarvisState.LISTENING_QUERY
+        tts?.speak("Слушаю", TextToSpeech.QUEUE_FLUSH, null, "JarvisPrompt")
+        scope.launch {
+            delay(900)
+            if (isContinuousListening && _jarvisState.value == JarvisState.LISTENING_QUERY) {
+                startCommandListening()
+            }
+        }
+    }
+
+    private fun startCommandListening() {
+        if (!isContinuousListening || recognitionInProgress) return
+        recognitionInProgress = true
         scope.launch(Dispatchers.Main) {
             try {
                 val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -195,7 +216,9 @@ class JarvisManager(
                 }
                 speechRecognizer?.startListening(intent)
             } catch (e: Exception) {
-                Log.w(TAG, "Failed to start speech listening", e)
+                recognitionInProgress = false
+                _jarvisState.value = JarvisState.IDLE
+                startWakeWordListening()
             }
         }
     }
@@ -205,6 +228,7 @@ class JarvisManager(
         _isWakeListening.value = false
         recognitionInProgress = false
         _jarvisState.value = JarvisState.IDLE
+        wakeWordEngine?.stop()
         speechRecognizer?.cancel()
     }
 
@@ -217,39 +241,16 @@ class JarvisManager(
     }
 
     private fun handleRecognizedSpeech(recognizedText: String) {
+        recognitionInProgress = false
         if (recognizedText.isBlank()) {
-            startWakeWordListening()
+            _jarvisState.value = JarvisState.IDLE
+            if (isContinuousListening) startWakeWordListening()
             return
         }
 
-        Log.d(TAG, "Recognized: $recognizedText")
-        val lower = recognizedText.lowercase()
-
-        val isWakeWord = lower.contains("джарвис") || lower.contains("jarvis") || 
-                         lower.contains("привет джарвис") || lower.contains("слушай") || lower.contains("эй")
-
-        if (isWakeWord || _jarvisState.value == JarvisState.LISTENING_QUERY) {
-            // Strip wake word to extract actual query
-            var cleanQuery = recognizedText
-                .replace("привет джарвис", "", ignoreCase = true)
-                .replace("слушай джарвис", "", ignoreCase = true)
-                .replace("джарвис", "", ignoreCase = true)
-                .replace("jarvis", "", ignoreCase = true)
-                .replace("слушай", "", ignoreCase = true)
-                .trim()
-
-            if (cleanQuery.isBlank()) {
-                _jarvisState.value = JarvisState.LISTENING_QUERY
-                speak("Слушаю")
-                return
-            }
-
-            _userQuery.value = cleanQuery
-            processUserQuery(cleanQuery)
-        } else {
-            // Not addressed to Jarvis, continue sleeping
-            startWakeWordListening()
-        }
+        Log.d(TAG, "Command recognized: $recognizedText")
+        _userQuery.value = recognizedText.trim()
+        processUserQuery(recognizedText.trim())
     }
 
     fun triggerManualQuery(query: String = "Что передо мной находится? Опиши подробно на русском языке.") {
@@ -450,6 +451,7 @@ class JarvisManager(
         _isWakeListening.value = false
         recognitionInProgress = false
         speechRecognizer?.cancel()
+        wakeWordEngine?.stop()
         speechRecognizer?.destroy()
         speechRecognizer = null
         tts?.stop()
