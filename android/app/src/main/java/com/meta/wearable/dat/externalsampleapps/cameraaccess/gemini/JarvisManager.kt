@@ -14,6 +14,7 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
+import android.media.AudioAttributes
 import android.util.Base64
 import android.util.Log
 import com.meta.wearable.dat.camera.StreamSession
@@ -78,7 +79,7 @@ class JarvisManager(
         .readTimeout(40, TimeUnit.SECONDS)
         .build()
 
-    private var tts: TextToSpeech? = TextToSpeech(application, this)
+    private var tts: TextToSpeech? = TextToSpeech(application, this, "com.google.android.tts")
     private var speechRecognizer: SpeechRecognizer? = null
 
     private val _jarvisState = MutableStateFlow(JarvisState.IDLE)
@@ -106,9 +107,20 @@ class JarvisManager(
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            tts?.setLanguage(Locale("ru", "RU"))
+            tts?.setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build()
+            )
+            val languageResult = tts?.setLanguage(Locale("ru", "RU"))
+            if (languageResult == TextToSpeech.LANG_MISSING_DATA || languageResult == TextToSpeech.LANG_NOT_SUPPORTED) {
+                tts?.setLanguage(Locale("en", "US"))
+            }
             tts?.setSpeechRate(1.05f)
             tts?.setPitch(1.0f)
+        } else {
+            Log.e(TAG, "Google TTS initialization failed: $status")
         }
     }
 
