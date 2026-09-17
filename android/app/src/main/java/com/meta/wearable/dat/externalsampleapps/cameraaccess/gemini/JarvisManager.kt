@@ -14,6 +14,7 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.media.AudioAttributes
 import android.util.Base64
 import android.util.Log
@@ -44,6 +45,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.util.Locale
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 enum class JarvisState {
@@ -97,6 +99,7 @@ class JarvisManager(
 
     private var isContinuousListening = false
     private var recognitionInProgress = false
+    private var speechGeneration = 0L
 
     private val _isWakeListening = MutableStateFlow(false)
     val isWakeListening: StateFlow<Boolean> = _isWakeListening.asStateFlow()
@@ -127,24 +130,62 @@ class JarvisManager(
             }
             tts?.setSpeechRate(1.05f)
             tts?.setPitch(1.0f)
+            tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                override fun onStart(utteranceId: String?) = Unit
+                override fun onDone(utteranceId: String?) {
+                    if (utteranceId?.startsWith("JarvisResponse-") == true &&
+                        utteranceId.endsWith("-last")
+                    ) {
+                        scope.launch(Dispatchers.Main) {
+                            _jarvisState.value = JarvisState.IDLE
+                            if (isContinuousListening) startWakeWordListening()
+                        }
+                    }
+                }
+                override fun onError(utteranceId: String?) {
+                    if (utteranceId?.startsWith("JarvisResponse-") == true) {
+                        scope.launch(Dispatchers.Main) {
+                            _jarvisState.value = JarvisState.IDLE
+                            if (isContinuousListening) startWakeWordListening()
+                        }
+                    }
+                }
+            })
         } else {
             Log.e(TAG, "Google TTS initialization failed: $status")
         }
     }
 
     fun speak(text: String) {
-        _jarvisState.value = JarvisState.SPEAKING
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "JarvisUtterance")
-        scope.launch {
-            // Estimate speech duration or reset after speech
-            val words = text.split(" ").size
-            val waitMs = maxOf(2500L, (words * 320).toLong())
-            delay(waitMs)
-            if (_jarvisState.value == JarvisState.SPEAKING) {
-                _jarvisState.value = JarvisState.IDLE
-                if (isContinuousListening) startWakeWordListening()
+        val cleanText = normalizeForSpeech(text)
+        if (cleanText.isBlank()) return
+        val chunks = cleanText
+            .split(Regex("(?<=[.!?;])\\s+"))
+            .flatMap { part -> if (part.length <= 360) listOf(part) else part.chunked(360) }
+        val generation = ++speechGeneration
+
+        scope.launch(Dispatchers.Main) {
+            _jarvisState.value = JarvisState.SPEAKING
+            chunks.forEachIndexed { index, chunk ->
+                val suffix = if (index == chunks.lastIndex) "-last" else ""
+                tts?.speak(
+                    chunk,
+                    if (index == 0) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD,
+                    null,
+                    "JarvisResponse-$generation-$index$suffix",
+                )
             }
         }
+    }
+
+    private fun normalizeForSpeech(text: String): String {
+        return text
+            .replace(Regex("\\[([^]]+)]\\([^)]*\\)"), "\\$1")
+            .replace(Regex("https?://\\S+"), " ссылка ")
+            .replace(Regex("[`*_#|{}\\[\\]<>~=^]+"), " ")
+            .replace("•", ". ")
+            .replace(Regex("\\s+"), " ")
+            .trim()
     }
 
     private fun setupSpeechRecognizer() {
