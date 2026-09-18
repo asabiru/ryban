@@ -45,6 +45,7 @@ object SettingsManager {
     private const val DEFAULT_SIGNALING_URL = "wss://YOUR_SIGNALING_SERVER"
 
     private lateinit var prefs: SharedPreferences
+    private var appContext: Context? = null
 
     private val _captureSourceFlow = MutableStateFlow(CaptureSource.GLASSES)
     val captureSourceFlow: StateFlow<CaptureSource> = _captureSourceFlow.asStateFlow()
@@ -53,6 +54,7 @@ object SettingsManager {
     val unlockedFlow: StateFlow<Boolean> = _unlockedFlow.asStateFlow()
 
     fun init(context: Context) {
+        appContext = context.applicationContext
         prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         _captureSourceFlow.value = CaptureSource.fromValue(prefs.getString("captureSource", CaptureSource.GLASSES.value))
         refreshUnlocked()
@@ -74,8 +76,20 @@ object SettingsManager {
         set(value) = prefs.edit().putString("geminiApiKey", value.trim()).apply()
 
     var notificationReadEnabled: Boolean
-        get() = prefs.getBoolean("notificationReadEnabled", false)
-        set(value) = prefs.edit().putBoolean("notificationReadEnabled", value).apply()
+        get() = localPrefs().getBoolean("notificationReadEnabled", false)
+        set(value) = localPrefs().edit().putBoolean("notificationReadEnabled", value).apply()
+
+    private fun localPrefs(): SharedPreferences =
+        if (::prefs.isInitialized) prefs
+        else appContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            ?: throw IllegalStateException("SettingsManager context is not initialized")
+
+    fun isNotificationReadEnabled(context: Context): Boolean =
+        localPrefsOrContext(context).getBoolean("notificationReadEnabled", false)
+
+    private fun localPrefsOrContext(context: Context): SharedPreferences =
+        if (::prefs.isInitialized) prefs
+        else context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     fun saveLatestNotification(context: Context, text: String) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

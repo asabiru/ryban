@@ -31,7 +31,7 @@ class JarvisNotificationListener : NotificationListenerService() {
 
         val summary = "$title: $text".trim(':', ' ', '\n')
         SettingsManager.saveLatestNotification(applicationContext, summary)
-        if (SettingsManager.notificationReadEnabled && isReadablePackage(sbn.packageName)) {
+        if (SettingsManager.isNotificationReadEnabled(applicationContext) && isReadablePackage(sbn.packageName)) {
             JarvisSpeech.speak(applicationContext, summary)
         }
     }
